@@ -28,6 +28,38 @@ function Home() {
     // Default recipe for Pasta Carbonara
     return [{
       id: '1001',
+      title: 'Chocolate Cake',
+      ingredients: [
+        { name: 'all-purpose flour', amount: '2 cups', id: '1' },
+        { name: 'sugar', amount: '2 cups', id: '2' },
+        { name: 'cocoa powder', amount: '3/4 cup', id: '3' },
+        { name: 'baking powder', amount: '2 tsp', id: '4' },
+        { name: 'baking soda', amount: '1.5 tsp', id: '5' },
+        { name: 'salt', amount: '1 tsp', id: '6' },
+        { name: 'eggs', amount: '2', id: '7' },
+        { name: 'milk', amount: '1 cup', id: '8' },
+        { name: 'vegetable oil', amount: '1/2 cup', id: '9' },
+        { name: 'vanilla extract', amount: '2 tsp', id: '10' },
+        { name: 'boiling water', amount: '1 cup', id: '11' }
+      ],
+      instructions: [
+        "1. Preheat oven to 350°F (175°C). Grease and flour two 9-inch round cake pans.",
+        "2. In a large bowl, combine flour, sugar, cocoa powder, baking powder, baking soda, and salt.",
+        "3. Add eggs, milk, oil, and vanilla; beat for 2 minutes on medium speed.",
+        "4. Stir in boiling water (batter will be thin). Pour into prepared pans.",
+        "5. Bake for 30-35 minutes or until a toothpick inserted comes out clean.",
+        "6. Cool in pans for 10 minutes, then remove to wire racks to cool completely."
+      ],
+      imageUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1089&q=80',
+      categories: ['dessert'],
+      prepTime: 20,
+      cookTime: 35,
+      difficultyLevel: 'Easy',
+      createdAt: new Date().toISOString(),
+      description: 'A rich, moist chocolate cake that's perfect for any occasion. Simple to make and absolutely delicious.'
+    },
+    {
+      id: '1002',
       title: 'Pasta Carbonara',
       ingredients: [
         { name: 'pasta', amount: '400g', id: '1' },
@@ -170,6 +202,9 @@ function Home() {
               <div className="relative rounded-xl overflow-hidden h-48 mb-4">
                 <img 
                   src={recipe.imageUrl || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"} 
+                  onError={(e) => {
+                    e.target.src = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80";
+                  }}
                   alt={recipe.title}
                   className="w-full h-full object-cover"
                 />
