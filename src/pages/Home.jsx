@@ -56,7 +56,7 @@ function Home() {
       cookTime: 35,
       difficultyLevel: 'easy',
       createdAt: new Date().toISOString(),
-      description: 'A rich, moist chocolate cake that's perfect for any occasion. Simple to make and absolutely delicious.'
+      description: `A rich, moist chocolate cake that's perfect for any occasion. Simple to make and absolutely delicious.`
     },
     {
       id: '1002',
@@ -83,7 +83,7 @@ function Home() {
       cookTime: 15,
       difficultyLevel: 'medium',
       createdAt: new Date().toISOString(),
-      description: 'A classic Italian pasta dish made with eggs, cheese, pancetta, and black pepper. Rich, creamy, and ready in under 30 minutes.'
+      description: `A classic Italian pasta dish made with eggs, cheese, pancetta, and black pepper. Rich, creamy, and ready in under 30 minutes.`
     }];
   });
   
