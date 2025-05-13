@@ -25,7 +25,34 @@ function Home() {
         return [];
       }
     }
-    return [];
+    // Default recipe for Pasta Carbonara
+    return [{
+      id: '1001',
+      title: 'Pasta Carbonara',
+      ingredients: [
+        { name: 'pasta', amount: '400g', id: '1' },
+        { name: 'eggs', amount: '3 large', id: '2' },
+        { name: 'pancetta', amount: '150g', id: '3' },
+        { name: 'parmesan cheese', amount: '50g, grated', id: '4' },
+        { name: 'black pepper', amount: 'to taste', id: '5' }
+      ],
+      instructions: [
+        "1. Cook pasta in salted water according to package instructions until al dente.",
+        "2. While pasta cooks, whisk eggs and grated parmesan in a bowl with fresh black pepper.",
+        "3. Fry pancetta in a large pan until crispy.",
+        "4. Drain pasta, reserving a little cooking water.",
+        "5. Working quickly, combine hot pasta with pancetta, then remove from heat.",
+        "6. Immediately add egg mixture, stirring constantly until creamy. Add a splash of pasta water if needed.",
+        "7. Serve immediately with extra parmesan and pepper."
+      ],
+      imageUrl: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1771&q=80',
+      categories: ['dinner'],
+      prepTime: 10,
+      cookTime: 15,
+      difficultyLevel: 'Medium',
+      createdAt: new Date().toISOString(),
+      description: 'A classic Italian pasta dish made with eggs, cheese, pancetta, and black pepper. Rich, creamy, and ready in under 30 minutes.'
+    }];
   });
   
   // State for search and filters
