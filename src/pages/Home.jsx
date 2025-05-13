@@ -81,7 +81,7 @@ function Home() {
       categories: ['dinner'],
       prepTime: 10,
       cookTime: 15,
-      difficultyLevel: 'Medium',
+      difficultyLevel: 'medium',
       createdAt: new Date().toISOString(),
       description: 'A classic Italian pasta dish made with eggs, cheese, pancetta, and black pepper. Rich, creamy, and ready in under 30 minutes.'
     }];
