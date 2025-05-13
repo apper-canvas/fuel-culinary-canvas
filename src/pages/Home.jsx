@@ -54,7 +54,7 @@ function Home() {
       categories: ['dessert'],
       prepTime: 20,
       cookTime: 35,
-      difficultyLevel: 'Easy',
+      difficultyLevel: 'easy',
       createdAt: new Date().toISOString(),
       description: 'A rich, moist chocolate cake that's perfect for any occasion. Simple to make and absolutely delicious.'
     },
