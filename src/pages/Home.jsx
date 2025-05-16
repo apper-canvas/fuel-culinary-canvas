@@ -407,7 +407,6 @@ function Home({ recipeFormRef }) {
                   <button 
                       onClick={closeRecipeDetails}
                       className="btn btn-outline"
-                  <div className="flex justify-between items-center p-6 pt-0">
                     <button 
                         onClick={closeRecipeDetails}
                         className="btn btn-outline"
@@ -423,6 +422,7 @@ function Home({ recipeFormRef }) {
                         Delete Recipe
                       </button>
                   </div>
+                </div>
             </motion.div>
           </div>
         )}
