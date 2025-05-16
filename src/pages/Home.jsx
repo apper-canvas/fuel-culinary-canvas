@@ -7,18 +7,17 @@ import { fetchIngredientsByRecipeId } from '../services/ingredientService';
 import { fetchInstructionsByRecipeId } from '../services/instructionService';
 import MainFeature from '../components/MainFeature';
 import { AnimatePresence } from 'framer-motion';
+import getIcon from '../utils/iconUtils';
 
 // Homepage component
 function Home({ recipeFormRef }) {
   // Icon declarations
-  import getIcon from '../utils/iconUtils';
   const UtensilsIcon = getIcon('Utensils');
   const SearchIcon = getIcon('Search');
   const FilterIcon = getIcon('Filter');
   const BookOpenIcon = getIcon('BookOpen');
   const Clock = getIcon('Clock');
   const ChefHat = getIcon('ChefHat');
-  const XIcon = getIcon('X');
   const XIcon = getIcon('X');
   
   // State for viewing a recipe
@@ -298,57 +297,47 @@ function Home({ recipeFormRef }) {
       <AnimatePresence>
         {viewingRecipe && (
           <motion.div
-          )}
-        </div>
-      )}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={closeRecipeDetails}
           >
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.3 }}
               className="bg-white dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-auto"
               onClick={e => e.stopPropagation()}
             >
-                    {viewingRecipe.categories && viewingRecipe.categories.split(',').map(cat => (
+              <div className="relative h-64 md:h-80">
                 <img 
                   src={viewingRecipe.imageUrl || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"} 
                   onError={(e) => {
                     e.target.src = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80";
                   }}
-                  <h2 className="text-2xl md:text-3xl font-bold text-white">{viewingRecipe.title}</h2>
-              <div className="relative h-64 md:h-80">
+                  alt={viewingRecipe.title}
+                  className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                 <button 
-                {isLoadingDetails ? (
-                  // Loading state for details
-                  alt={viewingRecipe.title}
-                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary mb-4"></div>
-                    <p className="text-surface-600 dark:text-surface-400">Loading recipe details...</p>
-                  </div>
-                ) : (
-                 onClick={closeRecipeDetails}
-                 className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
-                 aria-label="Close recipe details"
+                  onClick={closeRecipeDetails}
+                  className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                  aria-label="Close recipe details"
                 >
                   <XIcon className="h-5 w-5" />
                 </button>
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <div className="flex gap-2 mb-2">
                     {viewingRecipe.categories && viewingRecipe.categories.split(',').map(cat => (
+                      <span key={cat} className="text-xs font-medium bg-primary/80 text-white px-2 py-1 rounded-full">
+                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      </span>
+                    ))}
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white">{viewingRecipe.title}</h2>
+                </div>
               </div>
               
-              <div className="p-6">
-                <div className="flex gap-6 mb-6 flex-wrap">
-                  <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
-                    <Clock className="h-5 w-5" />
-                    <span>Prep: {viewingRecipe.prepTime} min</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
               {isLoadingDetails ? (
                 // Loading state for details
                 <div className="flex flex-col items-center justify-center p-12">
@@ -357,18 +346,26 @@ function Home({ recipeFormRef }) {
                 </div>
               ) : (
                 <div className="p-6">
-                    <span>Cook: {viewingRecipe.cookTime} min</span>
+                  <div className="flex gap-6 mb-6 flex-wrap">
+                    <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
+                      <Clock className="h-5 w-5" />
+                      <span>Prep: {viewingRecipe.prepTime} min</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
+                      <Clock className="h-5 w-5" />
+                      <span>Cook: {viewingRecipe.cookTime} min</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
+                      <ChefHat className="h-5 w-5" />
+                      <span>Difficulty: {viewingRecipe.difficultyLevel}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
-                    <ChefHat className="h-5 w-5" />
-                    <span>Difficulty: {viewingRecipe.difficultyLevel}</span>
-                  </div>
-                </div>
-                
-                <p className="text-surface-700 dark:text-surface-300 mb-6">{viewingRecipe.description}</p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                   <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  
+                  <p className="text-surface-700 dark:text-surface-300 mb-6">{viewingRecipe.description}</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                      <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                      {getIcon('Egg')({ className: "h-5 w-5 text-primary" })}
                      <span>Ingredients</span>
                    </h3>
@@ -402,9 +399,10 @@ function Home({ recipeFormRef }) {
                            </div>
                            <p className="text-surface-700 dark:text-surface-300">{inst.step}</p>
                          </div>
-                        </div>
-                      ))}
-                   )}
+                       ))}
+                      </div>
+                    )}
+                  </div>
                  </div>
                   </div>
                 </div>
@@ -423,7 +421,6 @@ function Home({ recipeFormRef }) {
                   </button>
                 </div>
               </div>
-              )}
             </motion.div>
           </motion.div>
         )}
