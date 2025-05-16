@@ -155,6 +155,7 @@ function Home({ recipeFormRef }) {
   const confirmDeleteRecipe = (id, e) => {
     if (window.confirm("Are you sure you want to delete this recipe?")) {
       handleDeleteRecipe(id);
+    }
   
   return (
     <div className="container mx-auto px-4 py-6 md:py-10">
