@@ -405,23 +405,23 @@ function Home({ recipeFormRef }) {
                   </div>
                   </div>
                   <div className="flex gap-3 justify-end mt-6">
-                    <button 
-                      onClick={closeRecipeDetails} 
-                      className="btn btn-outline"
-                    >
-                      Close
-                    </button>
-                    <button 
-                      onClick={() => {
-                        confirmDeleteRecipe(viewingRecipe.Id);
-                      }}
-                      className="btn bg-red-500 hover:bg-red-600 text-white"
-                    >
-                      Delete Recipe
-                    </button>
-                  </div>
+                <div className="flex gap-3 justify-end mt-6">
+                  <button 
+                    onClick={closeRecipeDetails} 
+                    className="btn btn-outline"
+                  >
+                    Close
+                  </button>
+                  <button 
+                    onClick={() => {
+                      confirmDeleteRecipe(viewingRecipe.Id);
+                    }}
+                    className="btn bg-red-500 hover:bg-red-600 text-white"
+                  >
+                    Delete Recipe
+                  </button>
                 </div>
-            </motion.div>
+              </div>
           </motion.div>
         )}
       </AnimatePresence>
