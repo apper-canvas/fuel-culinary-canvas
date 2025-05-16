@@ -292,7 +292,7 @@ function Home({ recipeFormRef }) {
           </div>
         )}
       </div>
-      
+      )}
       {/* Recipe Detail Modal */}
       <AnimatePresence>
         {viewingRecipe && (
