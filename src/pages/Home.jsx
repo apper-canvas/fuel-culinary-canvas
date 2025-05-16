@@ -421,9 +421,9 @@ function Home({ recipeFormRef }) {
                     </button>
                   </div>
                   </div>
-              </motion.div>
-            )}
-        )}
+              )}
+            </motion.div>
+          )}
       </AnimatePresence>
     </div>
   );
