@@ -31,7 +31,7 @@ function Home({ recipeFormRef }) {
       }
     }
     // Default recipe for Pasta Carbonara
-    return [{
+    return [{ 
       id: '1001',
       title: 'Chocolate Cake',
       ingredients: [
@@ -89,6 +89,167 @@ function Home({ recipeFormRef }) {
       difficultyLevel: 'medium',
       createdAt: new Date().toISOString(),
       description: `A classic Italian pasta dish made with eggs, cheese, pancetta, and black pepper. Rich, creamy, and ready in under 30 minutes.`
+    },
+    {
+      id: '1003',
+      title: 'Avocado Toast',
+      ingredients: [
+        { name: 'ripe avocado', amount: '1', id: '1' },
+        { name: 'bread slices', amount: '2', id: '2' },
+        { name: 'lemon juice', amount: '1 tsp', id: '3' },
+        { name: 'salt', amount: 'to taste', id: '4' },
+        { name: 'pepper', amount: 'to taste', id: '5' },
+        { name: 'red pepper flakes', amount: 'a pinch', id: '6' },
+        { name: 'cherry tomatoes', amount: '4, halved', id: '7' }
+      ],
+      instructions: [
+        "1. Toast bread slices until golden and crisp.",
+        "2. Cut the avocado in half, remove the pit, and scoop the flesh into a bowl.",
+        "3. Add lemon juice, salt, and pepper to the avocado and mash with a fork to desired consistency.",
+        "4. Spread the avocado mixture evenly on the toast.",
+        "5. Top with halved cherry tomatoes and a sprinkle of red pepper flakes.",
+        "6. Serve immediately."
+      ],
+      imageUrl: 'https://images.unsplash.com/photo-1588137378633-dea1336ce1e2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80',
+      categories: ['breakfast', 'snack'],
+      prepTime: 10,
+      cookTime: 5,
+      difficultyLevel: 'easy',
+      createdAt: new Date().toISOString(),
+      description: `A quick and nutritious breakfast or snack option. Creamy avocado on crispy toast with a hint of lemon and spice.`
+    },
+    {
+      id: '1004',
+      title: 'Chicken Stir Fry',
+      ingredients: [
+        { name: 'boneless chicken breast', amount: '500g, sliced', id: '1' },
+        { name: 'bell peppers', amount: '2, sliced', id: '2' },
+        { name: 'broccoli', amount: '1 cup, florets', id: '3' },
+        { name: 'carrots', amount: '2, julienned', id: '4' },
+        { name: 'garlic', amount: '3 cloves, minced', id: '5' },
+        { name: 'ginger', amount: '1 tbsp, grated', id: '6' },
+        { name: 'soy sauce', amount: '3 tbsp', id: '7' },
+        { name: 'honey', amount: '1 tbsp', id: '8' },
+        { name: 'sesame oil', amount: '2 tsp', id: '9' },
+        { name: 'vegetable oil', amount: '2 tbsp', id: '10' },
+        { name: 'sesame seeds', amount: '1 tsp', id: '11' }
+      ],
+      instructions: [
+        "1. In a small bowl, mix soy sauce, honey, and sesame oil to make the sauce.",
+        "2. Heat vegetable oil in a large wok or skillet over high heat.",
+        "3. Add chicken and stir-fry until no longer pink, about 4-5 minutes.",
+        "4. Add garlic and ginger, stir-fry for 30 seconds until fragrant.",
+        "5. Add all vegetables and stir-fry for 3-4 minutes until crisp-tender.",
+        "6. Pour sauce over the chicken and vegetables, toss to coat evenly.",
+        "7. Cook for another 2 minutes until sauce thickens slightly.",
+        "8. Sprinkle with sesame seeds and serve hot with rice."
+      ],
+      imageUrl: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80',
+      categories: ['dinner'],
+      prepTime: 15,
+      cookTime: 15,
+      difficultyLevel: 'medium',
+      createdAt: new Date().toISOString(),
+      description: `A quick and flavorful Asian-inspired dinner. Tender chicken and crisp vegetables coated in a savory-sweet sauce.`
+    },
+    {
+      id: '1005',
+      title: 'Greek Salad',
+      ingredients: [
+        { name: 'cucumber', amount: '1, diced', id: '1' },
+        { name: 'tomatoes', amount: '2, diced', id: '2' },
+        { name: 'red onion', amount: '1/2, thinly sliced', id: '3' },
+        { name: 'green bell pepper', amount: '1, diced', id: '4' },
+        { name: 'kalamata olives', amount: '1/2 cup', id: '5' },
+        { name: 'feta cheese', amount: '200g, cubed', id: '6' },
+        { name: 'olive oil', amount: '1/4 cup', id: '7' },
+        { name: 'lemon juice', amount: '2 tbsp', id: '8' },
+        { name: 'dried oregano', amount: '1 tsp', id: '9' },
+        { name: 'salt and pepper', amount: 'to taste', id: '10' }
+      ],
+      instructions: [
+        "1. In a large bowl, combine cucumber, tomatoes, red onion, and bell pepper.",
+        "2. Add kalamata olives and feta cheese cubes.",
+        "3. In a small bowl, whisk together olive oil, lemon juice, oregano, salt, and pepper.",
+        "4. Pour dressing over the salad and toss gently to combine.",
+        "5. Let sit for at least 10 minutes before serving to allow flavors to meld.",
+        "6. Serve chilled with a sprinkle of additional oregano if desired."
+      ],
+      imageUrl: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80',
+      categories: ['lunch', 'dinner'],
+      prepTime: 20,
+      cookTime: 0,
+      difficultyLevel: 'easy',
+      createdAt: new Date().toISOString(),
+      description: `A refreshing Mediterranean salad with crisp vegetables, briny olives, and creamy feta cheese in a simple olive oil and lemon dressing.`
+    },
+    {
+      id: '1006',
+      title: 'Classic Cheeseburger',
+      ingredients: [
+        { name: 'ground beef', amount: '500g', id: '1' },
+        { name: 'hamburger buns', amount: '4', id: '2' },
+        { name: 'cheddar cheese', amount: '4 slices', id: '3' },
+        { name: 'lettuce', amount: '4 leaves', id: '4' },
+        { name: 'tomato', amount: '1, sliced', id: '5' },
+        { name: 'red onion', amount: '1/2, sliced', id: '6' },
+        { name: 'dill pickles', amount: '8 slices', id: '7' },
+        { name: 'ketchup', amount: 'to taste', id: '8' },
+        { name: 'mustard', amount: 'to taste', id: '9' },
+        { name: 'salt and pepper', amount: 'to taste', id: '10' },
+        { name: 'vegetable oil', amount: '1 tbsp', id: '11' }
+      ],
+      instructions: [
+        "1. Divide the ground beef into 4 equal portions and shape into patties slightly larger than your buns.",
+        "2. Make a slight depression in the center of each patty with your thumb to prevent bulging during cooking.",
+        "3. Season both sides of patties generously with salt and pepper.",
+        "4. Heat oil in a skillet over medium-high heat.",
+        "5. Cook patties for 3-4 minutes on each side for medium doneness.",
+        "6. Add a cheese slice to each patty during the last minute of cooking. Cover to melt.",
+        "7. Lightly toast the hamburger buns in the same skillet.",
+        "8. Assemble burgers: bottom bun, ketchup/mustard, lettuce, patty with cheese, tomato, onion, pickles, top bun.",
+        "9. Serve immediately."
+      ],
+      imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80',
+      categories: ['lunch', 'dinner'],
+      prepTime: 15,
+      cookTime: 10,
+      difficultyLevel: 'medium',
+      createdAt: new Date().toISOString(),
+      description: `An all-American favorite - juicy beef patties topped with melted cheese and fresh vegetables on a toasted bun.`
+    },
+    {
+      id: '1007',
+      title: 'Guacamole',
+      ingredients: [
+        { name: 'ripe avocados', amount: '3', id: '1' },
+        { name: 'lime', amount: '1, juiced', id: '2' },
+        { name: 'red onion', amount: '1/4 cup, finely diced', id: '3' },
+        { name: 'cilantro', amount: '3 tbsp, chopped', id: '4' },
+        { name: 'jalapeño', amount: '1, seeded and minced', id: '5' },
+        { name: 'garlic', amount: '1 clove, minced', id: '6' },
+        { name: 'tomato', amount: '1, diced', id: '7' },
+        { name: 'salt', amount: 'to taste', id: '8' },
+        { name: 'pepper', amount: 'to taste', id: '9' },
+        { name: 'cumin', amount: '1/4 tsp', id: '10' }
+      ],
+      instructions: [
+        "1. Cut avocados in half, remove pits, and scoop flesh into a medium bowl.",
+        "2. Mash avocados with a fork, leaving some chunks for texture.",
+        "3. Add lime juice and mix to combine (this prevents browning).",
+        "4. Stir in onion, cilantro, jalapeño, and garlic.",
+        "5. Gently fold in diced tomatoes.",
+        "6. Season with salt, pepper, and cumin to taste.",
+        "7. Let sit at room temperature for 30 minutes to allow flavors to develop.",
+        "8. Serve with tortilla chips or as a topping for Mexican dishes."
+      ],
+      imageUrl: 'https://images.unsplash.com/photo-1580998316183-7892407d7f74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80',
+      categories: ['snack', 'appetizer'],
+      prepTime: 15,
+      cookTime: 0,
+      difficultyLevel: 'easy',
+      createdAt: new Date().toISOString(),
+      description: `Fresh, flavorful Mexican dip made with ripe avocados, lime, onions, and herbs. Perfect for parties or as a topping for tacos.`
     }];
   });
   
