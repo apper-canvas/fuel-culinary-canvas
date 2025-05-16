@@ -406,7 +406,7 @@ function Home({ recipeFormRef }) {
                  </div>
 
                 <div className="px-6 pb-6">
-                <div className="mt-8 pt-6 border-t border-surface-200 dark:border-surface-700 flex justify-between">
+                <div className="px-6 pb-6">
                   <button onClick={closeRecipeDetails} className="btn btn-outline">
                     Close
                   </button>
@@ -420,7 +420,6 @@ function Home({ recipeFormRef }) {
                   </button>
                 </div>
                 </div>
-              </div>
               </div>
             </motion.div>
           </motion.div>
