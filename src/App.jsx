@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -13,6 +13,8 @@ function App() {
     localStorage.getItem('darkMode') === 'true' || 
     window.matchMedia('(prefers-color-scheme: dark)').matches
   );
+  
+  const recipeFormRef = useRef(null);
   
   // Icons
   const SunIcon = getIcon('Sun');
@@ -36,6 +38,11 @@ function App() {
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
+  const openRecipeForm = () => {
+    if (recipeFormRef.current) {
+      recipeFormRef.current.openForm();
+    }
+  };
   return (
     <div className="flex flex-col min-h-screen">
       <header className="bg-white dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700 sticky top-0 z-20">
@@ -55,8 +62,18 @@ function App() {
           <div className="hidden md:flex items-center gap-6">
             <nav>
               <ul className="flex items-center gap-6">
-                <li><a href="/" className="text-surface-700 dark:text-surface-300 hover:text-primary dark:hover:text-primary transition">Recipes</a></li>
-                <li><a href="#features" className="text-surface-700 dark:text-surface-300 hover:text-primary dark:hover:text-primary transition">New Recipe</a></li>
+                <li>
+                  <a 
+                    href="/" 
+                    className="text-surface-700 dark:text-surface-300 hover:text-primary dark:hover:text-primary transition">Recipes</a>
+                </li>
+                <li>
+                  <button 
+                    onClick={openRecipeForm} 
+                    className="text-surface-700 dark:text-surface-300 hover:text-primary dark:hover:text-primary transition bg-transparent">
+                    New Recipe
+                  </button>
+                </li>
               </ul>
             </nav>
             <button 
@@ -89,8 +106,14 @@ function App() {
               <a href="/" className="text-surface-700 dark:text-surface-300 hover:text-primary dark:hover:text-primary transition py-2">
                 Recipes
               </a>
-              <a href="#features" className="text-surface-700 dark:text-surface-300 hover:text-primary dark:hover:text-primary transition py-2">
-                New Recipe
+              <a 
+                href="#" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  openRecipeForm();
+                  setIsMenuOpen(false);
+                }}
+                className="text-surface-700 dark:text-surface-300 hover:text-primary dark:hover:text-primary transition py-2">
               </a>
               <div className="flex items-center gap-2 py-2">
                 <span className="text-surface-700 dark:text-surface-300">Dark Mode</span>
@@ -110,7 +133,7 @@ function App() {
       <main className="flex-grow">
         <AnimatePresence mode="wait">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home recipeFormRef={recipeFormRef} />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>

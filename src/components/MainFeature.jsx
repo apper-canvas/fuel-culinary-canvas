@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
 
-function MainFeature({ onAddRecipe }) {
+const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
   // Icon declarations
   const PlusIcon = getIcon('Plus');
   const XIcon = getIcon('X');
@@ -40,6 +40,13 @@ function MainFeature({ onAddRecipe }) {
   
   // Form validation state
   const [errors, setErrors] = useState({});
+  
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    openForm: () => {
+      setIsFormOpen(true);
+    }
+  }));
   
   // Handle form input changes
   const handleChange = (e) => {
@@ -150,20 +157,19 @@ function MainFeature({ onAddRecipe }) {
     e.preventDefault();
     
     if (validateForm()) {
-      onAddRecipe(formData);
+      // Create properly formatted recipe data
+      const formattedRecipe = {
+        ...formData,
+        ingredients: formData.ingredients.map(ing => ({
+          name: ing.name,
+          amount: `${ing.quantity} ${ing.unit}`.trim(),
+          id: ing.id
+        }))
+      };
+      
+      onAddRecipe(formattedRecipe);
       // Reset form
-      setFormData({
-        title: '',
-        description: '',
-        imageUrl: '',
-        prepTime: 0,
-        cookTime: 0,
-        servings: 1,
-        difficultyLevel: 'medium',
-        ingredients: [{ id: Date.now(), name: '', quantity: '', unit: '' }],
-        instructions: [{ id: Date.now(), step: '' }],
-        categories: []
-      });
+      resetForm();
       setIsFormOpen(false);
     } else {
       toast.error("Please fix the errors in the form");
@@ -512,6 +518,6 @@ function MainFeature({ onAddRecipe }) {
       </AnimatePresence>
     </section>
   );
-}
+});
 
 export default MainFeature;

@@ -3,9 +3,10 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
 import MainFeature from '../components/MainFeature';
+import { AnimatePresence } from 'framer-motion';
 
 // Homepage component
-function Home() {
+function Home({ recipeFormRef }) {
   // Icon declarations
   const UtensilsIcon = getIcon('Utensils');
   const SearchIcon = getIcon('Search');
@@ -13,6 +14,10 @@ function Home() {
   const BookOpenIcon = getIcon('BookOpen');
   const Clock = getIcon('Clock');
   const ChefHat = getIcon('ChefHat');
+  const XIcon = getIcon('X');
+  
+  // State for viewing a recipe
+  const [viewingRecipe, setViewingRecipe] = useState(null);
   
   // State for recipes
   const [recipes, setRecipes] = useState(() => {
@@ -91,6 +96,15 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   
+  // View recipe details
+  const handleViewRecipe = (recipe) => {
+    setViewingRecipe(recipe);
+  };
+  
+  // Close recipe details
+  const closeRecipeDetails = () => {
+    setViewingRecipe(null);
+  };
   // Save recipes to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('recipes', JSON.stringify(recipes));
@@ -128,8 +142,19 @@ function Home() {
   // Handle deleting a recipe
   const handleDeleteRecipe = (id) => {
     setRecipes(recipes.filter(recipe => recipe.id !== id));
+    
+    // Close the detail view if we're deleting the recipe we're viewing
+    if (viewingRecipe && viewingRecipe.id === id) {
+      setViewingRecipe(null);
+    }
+    
     toast.success("Recipe deleted!");
   };
+  
+  // Confirm recipe deletion
+  const confirmDeleteRecipe = (id, e) => {
+    if (window.confirm("Are you sure you want to delete this recipe?")) {
+      handleDeleteRecipe(id);
   
   return (
     <div className="container mx-auto px-4 py-6 md:py-10">
@@ -149,7 +174,7 @@ function Home() {
       </motion.div>
       
       {/* Main Feature Component - Recipe Form */}
-      <MainFeature onAddRecipe={handleAddRecipe} />
+      <MainFeature ref={recipeFormRef} onAddRecipe={handleAddRecipe} />
       
       {/* Search and Filter Section */}
       <div className="mt-16 mb-8">
@@ -238,12 +263,14 @@ function Home() {
               </p>
               
               <div className="flex justify-between items-center">
-                <button className="btn btn-outline text-sm">View Recipe</button>
                 <button 
-                  onClick={() => handleDeleteRecipe(recipe.id)}
+                  onClick={() => handleViewRecipe(recipe)} 
+                  className="btn btn-outline text-sm">View Recipe</button>
+                <button 
+                  onClick={(e) => confirmDeleteRecipe(recipe.id, e)}
                   className="p-2 text-surface-500 hover:text-red-500 transition-colors"
                   aria-label="Delete recipe"
-                >
+                > 
                   {getIcon('Trash2')({ className: "h-5 w-5" })}
                 </button>
               </div>
@@ -261,6 +288,124 @@ function Home() {
           </div>
         )}
       </div>
+      
+      {/* Recipe Detail Modal */}
+      <AnimatePresence>
+        {viewingRecipe && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={closeRecipeDetails}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-auto"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="relative h-64 md:h-80 overflow-hidden rounded-t-2xl">
+                <img 
+                  src={viewingRecipe.imageUrl || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"} 
+                  onError={(e) => {
+                    e.target.src = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80";
+                  }}
+                  alt={viewingRecipe.title}
+                  className="w-full h-full object-cover absolute inset-0"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                <button 
+                  onClick={closeRecipeDetails}
+                  className="absolute top-4 right-4 p-2 bg-black/40 hover:bg-black/60 rounded-full text-white"
+                  aria-label="Close"
+                >
+                  <XIcon className="h-5 w-5" />
+                </button>
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="flex gap-2 mb-2">
+                    {viewingRecipe.categories.map(cat => (
+                      <span key={cat} className="text-xs font-medium bg-primary/80 text-white px-2 py-1 rounded-full">
+                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      </span>
+                    ))}
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white">{viewingRecipe.title}</h2>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="flex gap-6 mb-6 flex-wrap">
+                  <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
+                    <Clock className="h-5 w-5" />
+                    <span>Prep: {viewingRecipe.prepTime} min</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
+                    <Clock className="h-5 w-5" />
+                    <span>Cook: {viewingRecipe.cookTime} min</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
+                    <ChefHat className="h-5 w-5" />
+                    <span>Difficulty: {viewingRecipe.difficultyLevel}</span>
+                  </div>
+                </div>
+                
+                <p className="text-surface-700 dark:text-surface-300 mb-6">{viewingRecipe.description}</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      {getIcon('Egg')({ className: "h-5 w-5 text-primary" })}
+                      <span>Ingredients</span>
+                    </h3>
+                    <ul className="space-y-2">
+                      {viewingRecipe.ingredients.map((ing, idx) => (
+                        <li key={idx} className="flex items-baseline gap-2">
+                          <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5"></span>
+                          <span>{ing.name} {ing.amount && `- ${ing.amount}`}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      {getIcon('ListOrdered')({ className: "h-5 w-5 text-primary" })}
+                      <span>Instructions</span>
+                    </h3>
+                    <div className="space-y-4">
+                      {viewingRecipe.instructions.map((step, idx) => (
+                        <div key={idx} className="flex gap-3">
+                          <div className="bg-primary text-white rounded-full w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                            {idx + 1}
+                          </div>
+                          <p className="text-surface-700 dark:text-surface-300">{step}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-8 pt-6 border-t border-surface-200 dark:border-surface-700 flex justify-between">
+                  <button onClick={closeRecipeDetails} className="btn btn-outline">
+                    Close
+                  </button>
+                  <button 
+                    onClick={() => {
+                      confirmDeleteRecipe(viewingRecipe.id);
+                    }}
+                    className="btn bg-red-500 hover:bg-red-600 text-white"
+                  >
+                    Delete Recipe
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
