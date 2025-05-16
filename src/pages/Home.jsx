@@ -404,20 +404,22 @@ function Home({ recipeFormRef }) {
                     )}
                   </div>
                   </div>
-                  <button 
-                      onClick={closeRecipeDetails}
-                      className="btn btn-outline"
-                  >
-                    Close
-                  </button>
-                  <button 
-                    onClick={() => {
-                      confirmDeleteRecipe(viewingRecipe.Id);
-                    }}
-                    className="btn bg-red-500 hover:bg-red-600 text-white"
-                  >
-                    Delete Recipe
-                  </button>
+                  <div className="flex gap-4 mt-6">
+                    <button 
+                        onClick={closeRecipeDetails}
+                        className="btn btn-outline"
+                    >
+                      Close
+                    </button>
+                    <button 
+                      onClick={() => {
+                        confirmDeleteRecipe(viewingRecipe.Id);
+                      }}
+                      className="btn bg-red-500 hover:bg-red-600 text-white"
+                    >
+                      Delete Recipe
+                    </button>
+                  </div>
                   </div>
                 </div>
             </motion.div>
