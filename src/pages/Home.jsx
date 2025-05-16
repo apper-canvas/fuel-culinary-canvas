@@ -403,8 +403,8 @@ function Home({ recipeFormRef }) {
                       </div>
                     )}
                   </div>
-                 </div>
-
+                  </div>
+                </div>
                 <div className="px-6 pb-6 flex gap-3">
                   <button onClick={closeRecipeDetails} className="btn btn-outline">
                     Close
