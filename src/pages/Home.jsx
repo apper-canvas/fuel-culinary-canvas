@@ -405,8 +405,7 @@ function Home({ recipeFormRef }) {
                   </div>
                  </div>
 
-                <div className="px-6 pb-6">
-                <div className="px-6 pb-6">
+                <div className="px-6 pb-6 flex gap-3">
                   <button onClick={closeRecipeDetails} className="btn btn-outline">
                     Close
                   </button>
@@ -418,7 +417,6 @@ function Home({ recipeFormRef }) {
                   >
                     Delete Recipe
                   </button>
-                </div>
                 </div>
               </div>
             </motion.div>
