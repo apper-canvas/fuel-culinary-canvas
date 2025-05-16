@@ -345,14 +345,14 @@ function Home({ recipeFormRef }) {
                   <p className="text-surface-600 dark:text-surface-400">Loading recipe details...</p>
                 </div>
               ) : (
-                <><div className="p-6">
+                <div className="p-6">
                   <div className="flex gap-6 mb-6 flex-wrap">
                     <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
                       <Clock className="h-5 w-5" />
                       <span>Prep: {viewingRecipe.prepTime} min</span>
                     </div>
                     <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
-                      <Clock className="h-5 w-5" />
+                      <Clock className="h-5 w-5" /> 
                       <span>Cook: {viewingRecipe.cookTime} min</span>
                     </div>
                     <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
@@ -404,8 +404,6 @@ function Home({ recipeFormRef }) {
                     )}
                   </div>
                   </div>
-                </div>
-                <div className="px-6 pb-6 flex gap-3">
                   <button onClick={closeRecipeDetails} className="btn btn-outline">
                     Close
                   </button>
@@ -417,7 +415,7 @@ function Home({ recipeFormRef }) {
                   >
                     Delete Recipe
                   </button>
-                </div></>
+                </div>
             </motion.div>
           </motion.div>
         )}
