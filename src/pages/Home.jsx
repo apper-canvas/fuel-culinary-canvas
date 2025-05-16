@@ -404,9 +404,11 @@ function Home({ recipeFormRef }) {
                     )}
                   </div>
                   </div>
-                  <button onClick={closeRecipeDetails} className="btn btn-outline">
-                    Close
-                    <button onClick={closeRecipeDetails} className="btn btn-outline">
+                  <div className="flex gap-3 justify-end mt-6">
+                    <button 
+                      onClick={closeRecipeDetails} 
+                      className="btn btn-outline"
+                    >
                       Close
                     </button>
                     <button 
@@ -418,7 +420,7 @@ function Home({ recipeFormRef }) {
                       Delete Recipe
                     </button>
                   </div>
-          </motion.div>
+                </div>
         )}
       </AnimatePresence>
     </div>
