@@ -418,7 +418,6 @@ function Home({ recipeFormRef }) {
                     Delete Recipe
                   </button>
                 </div></>
-              </div>
             </motion.div>
           </motion.div>
         )}
