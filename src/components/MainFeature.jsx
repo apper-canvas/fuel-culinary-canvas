@@ -1,6 +1,9 @@
 import { useState, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
+import { createRecipe } from '../services/recipeService';
+import { createIngredients } from '../services/ingredientService';
+import { createInstructions } from '../services/instructionService';
 import getIcon from '../utils/iconUtils';
 
 const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
@@ -153,26 +156,74 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
   };
   
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      // Create properly formatted recipe data
-      const formattedRecipe = {
-        ...formData,
-        ingredients: formData.ingredients.map(ing => ({
-          name: ing.name,
-          amount: `${ing.quantity} ${ing.unit}`.trim(),
-          id: ing.id
-        }))
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form");
+      return;
+    }
+
+    // Set up loading state
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    setIsSubmitting(true);
+    
+    try {
+      // Step 1: Create the recipe record
+      const recipeResponse = await createRecipe({
+        title: formData.title,
+        description: formData.description,
+        imageUrl: formData.imageUrl || '',
+        prepTime: parseInt(formData.prepTime),
+        cookTime: parseInt(formData.cookTime),
+        servings: parseInt(formData.servings),
+        difficultyLevel: formData.difficultyLevel,
+        categories: formData.categories
+      });
+      
+      const recipeId = recipeResponse.Id;
+      
+      // Step 2: Create ingredients linked to the recipe
+      const ingredientsData = formData.ingredients.map(ing => ({
+        name: ing.name,
+        amount: `${ing.quantity} ${ing.unit}`.trim(),
+      }));
+      
+      await createIngredients(recipeId, ingredientsData);
+      
+      // Step 3: Create instructions linked to the recipe
+      const instructionsData = formData.instructions.map(inst => ({
+        step: inst.step
+      }));
+      
+      await createInstructions(recipeId, instructionsData);
+      
+      // Notify parent component with new recipe
+      if (onAddRecipe) {
+        onAddRecipe(recipeResponse);
       };
       
-      onAddRecipe(formattedRecipe);
-      // Reset form
       resetForm();
       setIsFormOpen(false);
-    } else {
-      toast.error("Please fix the errors in the form");
+    setFormData({
+      title: '',
+      description: '',
+      imageUrl: '',
+      prepTime: 0,
+      cookTime: 0,
+      servings: 1,
+      difficultyLevel: 'medium',
+      ingredients: [{ id: Date.now(), name: '', quantity: '', unit: '' }],
+      instructions: [{ id: Date.now(), step: '' }],
+      categories: []
+    });
+
+      toast.success("Recipe added successfully!");
+    } catch (error) {
+      console.error("Error saving recipe:", error);
+      toast.error("Failed to save recipe. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
@@ -504,11 +555,11 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
                   <motion.button
                     type="submit"
                     className="btn btn-primary flex items-center gap-2"
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    disabled={isSubmitting}
                   >
-                    <SaveIcon className="h-5 w-5" />
-                    <span>Save Recipe</span>
+                    {isSubmitting ? <span className="animate-pulse">Saving...</span> : <><SaveIcon className="h-5 w-5" /><span>Save Recipe</span></>}
                   </motion.button>
                 </div>
               </form>

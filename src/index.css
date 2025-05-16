@@ -2,92 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base Styles */
 @layer base {
-  html {
-    -webkit-tap-highlight-color: transparent;
-    scroll-behavior: smooth;
-  }
-  
   body {
-    @apply font-sans text-surface-800 dark:text-surface-100 bg-surface-50 dark:bg-surface-900;
-    min-height: 100vh;
+    @apply text-surface-800 dark:text-surface-100;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-semibold;
-  }
-  
-  h1 {
-    @apply text-3xl md:text-4xl lg:text-5xl;
-  }
-  
-  h2 {
-    @apply text-2xl md:text-3xl lg:text-4xl;
-  }
-  
-  h3 {
-    @apply text-xl md:text-2xl lg:text-3xl;
-  }
-  
-  button, a {
-    @apply outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-white 
-    dark:focus:ring-offset-surface-900;
+    @apply font-heading;
   }
 }
 
-/* Component Styles */
 @layer components {
   .btn {
-    @apply px-4 py-2 rounded-xl font-medium transition-all duration-200 
-    disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none;
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-50 dark:focus:ring-offset-surface-900;
   }
   
   .btn-primary {
-    @apply bg-primary text-white hover:bg-primary-dark;
-  }
-  
-  .btn-secondary {
-    @apply bg-secondary text-white hover:bg-secondary-dark;
+    @apply bg-primary hover:bg-primary-dark text-white focus:ring-primary;
   }
   
   .btn-outline {
-    @apply border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800;
+    @apply border border-surface-300 dark:border-surface-600 hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-700 dark:text-surface-300 focus:ring-surface-500;
   }
   
   .card {
-    @apply bg-white dark:bg-surface-800 rounded-2xl shadow-card overflow-hidden;
+    @apply bg-white dark:bg-surface-800 rounded-xl shadow-lg border border-surface-200 dark:border-surface-700;
   }
   
   .recipe-card {
-    @apply card p-4 transition-all duration-300 hover:shadow-lg;
+    @apply bg-white dark:bg-surface-800 p-4 rounded-xl shadow-card border border-surface-200 dark:border-surface-700 transition duration-300 hover:shadow-lg;
   }
   
   .input-field {
-    @apply w-full px-4 py-2 rounded-xl border border-surface-300 dark:border-surface-700 
-    bg-white dark:bg-surface-800 focus:ring-2 focus:ring-primary focus:border-primary dark:focus:border-primary
-    placeholder:text-surface-400;
+    @apply block w-full rounded-lg border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 p-2.5 text-surface-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary dark:placeholder-surface-400;
   }
 }
 
-/* Utility Styles */
-@layer utilities {
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .neu-light {
-    @apply shadow-neu-light;
-  }
-  
-  .neu-dark {
-    @apply shadow-neu-dark;
-  }
+/* Skeleton Loading Animation */
+.skeleton {
+  @apply bg-surface-200 dark:bg-surface-700 animate-pulse rounded;
 }
 
-/* Import React Toastify CSS */
-@import 'react-toastify/dist/ReactToastify.css';
+/* Toast Customization */
+.Toastify__toast {
+  @apply rounded-lg shadow-lg;
+}
+
+.Toastify__toast--success {
+  @apply bg-green-500 text-white;
+}
+
+.Toastify__toast--error {
+  @apply bg-red-500 text-white;
+}
