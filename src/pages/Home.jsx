@@ -406,17 +406,18 @@ function Home({ recipeFormRef }) {
                   </div>
                   <button onClick={closeRecipeDetails} className="btn btn-outline">
                     Close
-                  </button>
-                  <button 
-                    onClick={() => {
-                      confirmDeleteRecipe(viewingRecipe.Id);
-                    }}
-                    className="btn bg-red-500 hover:bg-red-600 text-white"
-                  >
-                    Delete Recipe
-                  </button>
-                </div>
-            </motion.div>
+                    <button onClick={closeRecipeDetails} className="btn btn-outline">
+                      Close
+                    </button>
+                    <button 
+                      onClick={() => {
+                        confirmDeleteRecipe(viewingRecipe.Id);
+                      }}
+                      className="btn bg-red-500 hover:bg-red-600 text-white"
+                    >
+                      Delete Recipe
+                    </button>
+                  </div>
           </motion.div>
         )}
       </AnimatePresence>
