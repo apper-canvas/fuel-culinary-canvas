@@ -345,7 +345,7 @@ function Home({ recipeFormRef }) {
                   <p className="text-surface-600 dark:text-surface-400">Loading recipe details...</p>
                 </div>
               ) : (
-                <div className="p-6">
+                <><div className="p-6">
                   <div className="flex gap-6 mb-6 flex-wrap">
                     <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
                       <Clock className="h-5 w-5" />
@@ -417,7 +417,7 @@ function Home({ recipeFormRef }) {
                   >
                     Delete Recipe
                   </button>
-                </div>
+                </div></>
               </div>
             </motion.div>
           </motion.div>
