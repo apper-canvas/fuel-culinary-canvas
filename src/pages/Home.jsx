@@ -407,19 +407,22 @@ function Home({ recipeFormRef }) {
                   <button 
                       onClick={closeRecipeDetails}
                       className="btn btn-outline"
-                    >
-                      Close
-                    </button>
+                  <div className="flex justify-between items-center p-6 pt-0">
                     <button 
-                      onClick={() => {
-                        confirmDeleteRecipe(viewingRecipe.Id);
-                      }}
-                      className="btn bg-red-500 hover:bg-red-600 text-white"
-                    >
-                      Delete Recipe
-                    </button>
-                </div>
-              </div>
+                        onClick={closeRecipeDetails}
+                        className="btn btn-outline"
+                      >
+                        Close
+                      </button>
+                      <button 
+                        onClick={() => {
+                          confirmDeleteRecipe(viewingRecipe.Id);
+                        }}
+                        className="btn bg-red-500 hover:bg-red-600 text-white"
+                      >
+                        Delete Recipe
+                      </button>
+                  </div>
             </motion.div>
           </div>
         )}
