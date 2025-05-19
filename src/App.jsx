@@ -7,6 +7,7 @@ import { setUser, clearUser } from './store/userSlice';
 import getIcon from './utils/iconUtils';
 
 // Pages
+import ProfileMenu from './components/ProfileMenu';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
@@ -205,14 +206,8 @@ function App() {
                   >
                     {isDarkMode ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
                   </button>
-                  <button 
-                    onClick={handleLogout}
-                    className="p-2 rounded-full bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 transition flex items-center gap-1"
-                    aria-label="Logout"
-                  >
-                    <LogOutIcon className="h-5 w-5" />
-                    <span className="text-sm font-medium">Logout</span>
-                  </button>
+                  {/* Profile Menu */}
+                  <ProfileMenu />
                 </div>
               </div>
               
@@ -255,6 +250,19 @@ function App() {
                       aria-label="Toggle dark mode"
                     >
                       {isDarkMode ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-t border-surface-200 dark:border-surface-700 mt-2">
+                    <span className="text-surface-700 dark:text-surface-300">Settings</span>
+                    <button 
+                      onClick={() => {
+                        navigate('/settings');
+                        setIsMenuOpen(false);
+                      }}
+                      className="p-2 rounded-full bg-surface-100 dark:bg-surface-700"
+                      aria-label="Settings"
+                    >
+                      <getIcon('Settings') className="h-5 w-5" />
                     </button>
                   </div>
                   <button 
