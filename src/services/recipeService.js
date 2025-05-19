@@ -56,3 +56,53 @@ export const createRecipe = async (recipeData) => {
     throw error;
   }
 };
+
+// Fetch all recipes with optional search and filter
+export const fetchAllRecipes = async (searchTerm = '', category = 'all') => {
+  try {
+    const client = getClient();
+    
+    const params = {
+      fields: ['Id', 'Name', 'title', 'description', 'imageUrl', 'prepTime', 'cookTime', 'servings', 'difficultyLevel', 'categories'],
+      orderBy: [{ field: 'ModifiedOn', direction: 'DESC' }]
+    };
+    
+    // Add search functionality
+    if (searchTerm) {
+      params.where = [
+        {
+          fieldName: 'title',
+          operator: 'Contains',
+          values: [searchTerm]
+        }
+      ];
+    }
+    
+    // Add category filtering (if not 'all')
+    if (category && category !== 'all') {
+      params.where = params.where || [];
+      params.where.push({
+        fieldName: 'categories',
+        operator: 'Contains',
+        values: [category]
+      });
+    }
+    
+    const response = await client.fetchRecords('recipe', params);
+    return response?.data || [];
+  } catch (error) {
+    console.error('Error fetching recipes:', error);
+    throw error;
+  }
+};
+
+// Delete a recipe by ID
+export const deleteRecipe = async (recipeId) => {
+  try {
+    const client = getClient();
+    return await client.deleteRecord('recipe', { RecordIds: [recipeId] });
+  } catch (error) {
+    console.error('Error deleting recipe:', error);
+    throw error;
+  }
+};
