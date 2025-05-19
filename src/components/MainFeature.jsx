@@ -170,7 +170,7 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
     
     try {
       // Step 1: Create the recipe record
-      const recipeResponse = await createRecipe({
+      const recipeData = {
         title: formData.title,
         description: formData.description,
         imageUrl: formData.imageUrl || '',
@@ -178,8 +178,10 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
         cookTime: parseInt(formData.cookTime),
         servings: parseInt(formData.servings),
         difficultyLevel: formData.difficultyLevel,
-        categories: formData.categories
-      });
+        categories: formData.categories // Already an array, will be formatted in service
+      };
+      
+      const recipeResponse = await createRecipe(recipeData);
       
       const recipeId = recipeResponse.Id;
       
@@ -193,13 +195,13 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       
       // Step 3: Create instructions linked to the recipe
       const instructionsData = formData.instructions.map((inst, index) => ({
+        name: `Step ${index + 1}`,
         step: inst.step
       }));
-
       
       await createInstructions(recipeId, instructionsData);
       
-      // Notify parent component with new recipe
+      // Notify parent component with new recipe if callback exists
       if (onAddRecipe) {
         onAddRecipe(recipeResponse);
       };
@@ -222,7 +224,17 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       toast.success("Recipe added successfully!");
     } catch (error) {
       console.error("Error saving recipe:", error);
-      toast.error("Failed to save recipe. Please try again.");
+      
+      // Provide more specific error messages to help troubleshoot
+      if (error.message && error.message.includes('Failed to create recipe')) {
+        toast.error(`${error.message}. Please check your recipe details and try again.`);
+      } else if (error.message && error.message.includes('Failed to create ingredients')) {
+        toast.error(`${error.message}. Recipe was created but ingredients couldn't be added.`);
+      } else if (error.message && error.message.includes('Failed to create instructions')) {
+        toast.error(`${error.message}. Recipe and ingredients were created but instructions couldn't be added.`);
+      } else {
+        toast.error("Failed to save recipe. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -24,10 +24,17 @@ export const createIngredients = async (recipeId, ingredientsData) => {
       records: recordsToCreate
     };
     
+    // If there are no ingredients to create, return empty results
+    if (recordsToCreate.length === 0) {
+      return [];
+    }
+    
     const response = await client.createRecord('ingredient', params);
-    return response?.results || [];
+    if (!response || !response.results) {
+      throw new Error('Failed to create ingredients: Invalid response from server');
+    }
+    return response.results;
   } catch (error) {
-    console.error('Error creating ingredients:', error);
     throw error;
   }
 };

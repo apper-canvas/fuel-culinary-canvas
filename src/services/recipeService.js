@@ -34,25 +34,35 @@ export const fetchUserRecipes = async (options = {}) => {
 export const createRecipe = async (recipeData) => {
   try {
     const client = getClient();
-    
-    // Filter data to only include updateable fields
+
+    // Convert categories array to semicolon-separated string if it's an array
+    let categories = recipeData.categories;
+    if (Array.isArray(categories)) {
+      categories = categories.join(',');
+    }
+
+    // Prepare data according to the table schema, including only updateable fields
     const params = {
       records: [{
-        Name: recipeData.title, // Name field is required
+        Name: recipeData.title || 'Untitled Recipe', // Name field is required
         title: recipeData.title,
         description: recipeData.description,
-        imageUrl: recipeData.imageUrl,
-        prepTime: recipeData.prepTime,
-        cookTime: recipeData.cookTime,
-        servings: recipeData.servings,
+        imageUrl: recipeData.imageUrl || '',
+        prepTime: parseInt(recipeData.prepTime) || 0,
+        cookTime: parseInt(recipeData.cookTime) || 0,
+        servings: parseInt(recipeData.servings) || 1,
         difficultyLevel: recipeData.difficultyLevel,
-        categories: recipeData.categories.join(';') // Store multi-picklist as semicolon-separated string
+        categories: categories // Store as comma-separated string per API requirements
       }]
     };
+
     const response = await client.createRecord('recipe', params);
-    return response?.results?.[0]?.data || null;
+    if (!response || !response.results || !response.results[0] || !response.results[0].data) {
+      throw new Error('Failed to create recipe: Invalid response from server');
+    }
+    return response.results[0].data;
   } catch (error) {
-    console.error('Error creating recipe:', error);
+    console.error('Error creating recipe:', error.message || error);
     throw error;
   }
 };

@@ -26,10 +26,17 @@ export const createInstructions = async (recipeId, instructionsData) => {
       records: recordsToCreate
     };
     
+    // If there are no instructions to create, return empty results
+    if (recordsToCreate.length === 0) {
+      return [];
+    }
+    
     const response = await client.createRecord('instruction', params);
-    return response?.results || [];
+    if (!response || !response.results) {
+      throw new Error('Failed to create instructions: Invalid response from server');
+    }
+    return response.results;
   } catch (error) {
-    console.error('Error creating instructions:', error);
     throw error;
   }
 };
