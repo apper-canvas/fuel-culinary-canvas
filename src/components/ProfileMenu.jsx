@@ -13,7 +13,8 @@ const ProfileMenu = () => {
   const [sharedRecipes, setSharedRecipes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useSelector((state) => state.user);
-  const { logout } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
+  const logout = authContext?.logout;
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -136,7 +137,7 @@ const ProfileMenu = () => {
                 }
               </div>
               
-              <button onClick={logout} className="w-full text-left px-4 py-2 flex items-center gap-3 rounded-md hover:bg-surface-100 dark:hover:bg-surface-700 text-red-600 dark:text-red-400 transition mt-1 border-t border-surface-200 dark:border-surface-700">
+              <button onClick={logout || (() => console.warn('Logout function not available'))} className="w-full text-left px-4 py-2 flex items-center gap-3 rounded-md hover:bg-surface-100 dark:hover:bg-surface-700 text-red-600 dark:text-red-400 transition mt-1 border-t border-surface-200 dark:border-surface-700">
                 <LogOutIcon className="h-5 w-5" />
                 <span>Logout</span>
               </button>
