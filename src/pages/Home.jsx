@@ -23,11 +23,12 @@ function Home({ recipeFormRef }) {
   // State for viewing a recipe
   const [viewingRecipe, setViewingRecipe] = useState(null);
   const [viewingIngredients, setViewingIngredients] = useState([]);
-  const [viewingInstructions, setViewingInstructions] = useState([]);
+  const [viewingInstructions, setViewingInstructions] = useState([]); 
+  const [isLoading, setIsLoading] = useState(false);
+  const [recipes, setRecipes] = useState([]);
   
   // State for recipes
-  const [viewingRecipe, setViewingRecipe] = useState(null);
-  const [viewingIngredients, setViewingIngredients] = useState([]);
+  // Additional states for recipe management
   const [isError, setIsError] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   
