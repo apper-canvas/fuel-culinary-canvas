@@ -26,8 +26,8 @@ function Home({ recipeFormRef }) {
   const [viewingInstructions, setViewingInstructions] = useState([]);
   
   // State for recipes
-  const [recipes, setRecipes] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [viewingRecipe, setViewingRecipe] = useState(null);
+  const [viewingIngredients, setViewingIngredients] = useState([]);
   const [isError, setIsError] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   
