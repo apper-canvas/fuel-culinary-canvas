@@ -31,3 +31,34 @@ export const createIngredients = async (recipeId, ingredientsData) => {
     throw error;
   }
 };
+
+// Fetch ingredients for a specific recipe by recipeId
+export const fetchIngredientsByRecipeId = async (recipeId) => {
+  try {
+    const client = getClient();
+    
+    // Set up params to filter ingredients by recipe ID
+    const params = {
+      fields: ['Id', 'Name', 'amount', 'recipe'],
+      where: [
+        {
+          fieldName: 'recipe',
+          Operator: 'ExactMatch',
+          values: [recipeId]
+        }
+      ],
+      orderBy: [
+        {
+          field: 'Name',
+          direction: 'asc'
+        }
+      ]
+    };
+    
+    const response = await client.fetchRecords('ingredient', params);
+    return response?.data || [];
+  } catch (error) {
+    console.error('Error fetching ingredients by recipe ID:', error);
+    throw error;
+  }
+};
