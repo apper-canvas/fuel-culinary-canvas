@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createElement } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
@@ -207,7 +207,7 @@ function Home({ recipeFormRef }) {
       {isError && (
         <div className="w-full flex flex-col items-center justify-center my-12 text-center">
           <div className="text-red-500 mb-4">
-            {getIcon('AlertTriangle')({ className: "h-12 w-12 mx-auto" })}
+            {createElement(getIcon('AlertTriangle'), { className: "h-12 w-12 mx-auto" })}
           </div>
           <h3 className="text-xl font-medium text-red-600 dark:text-red-400 mb-2">
             Error Loading Recipes
@@ -276,7 +276,7 @@ function Home({ recipeFormRef }) {
                     className="p-2 text-surface-500 hover:text-red-500 transition-colors"
                     aria-label="Delete recipe"
                   > 
-                    {getIcon('Trash2')({ className: "h-5 w-5" })}
+                    {createElement(getIcon('Trash2'), { className: "h-5 w-5" })}
                   </button>
                 </div>
               </motion.div>
@@ -367,7 +367,7 @@ function Home({ recipeFormRef }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                       <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                     {getIcon('Egg')({ className: "h-5 w-5 text-primary" })}
+                     {createElement(getIcon('Egg'), { className: "h-5 w-5 text-primary" })}
                      <span>Ingredients</span>
                    </h3>
                    {viewingIngredients.length === 0 ? (
@@ -386,7 +386,7 @@ function Home({ recipeFormRef }) {
                  
                  <div>
                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                     {getIcon('ListOrdered')({ className: "h-5 w-5 text-primary" })}
+                    {createElement(getIcon('ListOrdered'), { className: "h-5 w-5 text-primary" })}
                      <span>Instructions</span>
                    </h3>
                    {viewingInstructions.length === 0 ? (
