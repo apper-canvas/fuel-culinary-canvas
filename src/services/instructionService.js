@@ -33,3 +33,30 @@ export const createInstructions = async (recipeId, instructionsData) => {
     throw error;
   }
 };
+
+// Fetch instructions for a specific recipe
+export const fetchInstructionsByRecipeId = async (recipeId) => {
+  try {
+    const client = getClient();
+    
+    const params = {
+      fields: ["Id", "Name", "step", "sequence", "recipe"],
+      where: [
+        {
+          fieldName: "recipe",
+          operator: "ExactMatch",
+          values: [recipeId]
+        }
+      ],
+      orderBy: [
+        { field: "sequence", direction: "ASC" }
+      ]
+    };
+    
+    const response = await client.fetchRecords('instruction', params);
+    return response?.data || [];
+  } catch (error) {
+    console.error('Error fetching instructions:', error);
+    throw error;
+  }
+};
