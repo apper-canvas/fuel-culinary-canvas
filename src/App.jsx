@@ -38,6 +38,7 @@ function App() {
   const SunIcon = getIcon('Sun');
   const MoonIcon = getIcon('Moon');
   const MenuIcon = getIcon('Menu');
+  const SettingsIcon = getIcon('Settings');
   const ChefHatIcon = getIcon('ChefHat');
   const LogOutIcon = getIcon('LogOut');
   
@@ -262,7 +263,7 @@ function App() {
                       className="p-2 rounded-full bg-surface-100 dark:bg-surface-700"
                       aria-label="Settings"
                     >
-                      <getIcon('Settings') className="h-5 w-5" />
+                      <SettingsIcon className="h-5 w-5" />
                     </button>
                   </div>
                   <button 
