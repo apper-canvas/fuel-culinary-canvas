@@ -43,6 +43,9 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
   
   // Form validation state
   const [errors, setErrors] = useState({});
+
+  // Loading state
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Expose methods to parent component
   useImperativeHandle(ref, () => ({
@@ -163,9 +166,6 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       toast.error("Please fix the errors in the form");
       return;
     }
-
-    // Set up loading state
-    const [isSubmitting, setIsSubmitting] = useState(false);
     setIsSubmitting(true);
     
     try {
@@ -186,15 +186,16 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       // Step 2: Create ingredients linked to the recipe
       const ingredientsData = formData.ingredients.map(ing => ({
         name: ing.name,
-        amount: `${ing.quantity} ${ing.unit}`.trim(),
+        amount: `${ing.quantity} ${ing.unit}`.trim()
       }));
       
       await createIngredients(recipeId, ingredientsData);
       
       // Step 3: Create instructions linked to the recipe
-      const instructionsData = formData.instructions.map(inst => ({
+      const instructionsData = formData.instructions.map((inst, index) => ({
         step: inst.step
       }));
+
       
       await createInstructions(recipeId, instructionsData);
       

@@ -29,3 +29,30 @@ export const fetchUserRecipes = async (options = {}) => {
     return [];
   }
 };
+
+// Create a new recipe record
+export const createRecipe = async (recipeData) => {
+  try {
+    const client = getClient();
+    
+    // Filter data to only include updateable fields
+    const params = {
+      records: [{
+        Name: recipeData.title, // Name field is required
+        title: recipeData.title,
+        description: recipeData.description,
+        imageUrl: recipeData.imageUrl,
+        prepTime: recipeData.prepTime,
+        cookTime: recipeData.cookTime,
+        servings: recipeData.servings,
+        difficultyLevel: recipeData.difficultyLevel,
+        categories: recipeData.categories.join(';') // Store multi-picklist as semicolon-separated string
+      }]
+    };
+    const response = await client.createRecord('recipe', params);
+    return response?.results?.[0]?.data || null;
+  } catch (error) {
+    console.error('Error creating recipe:', error);
+    throw error;
+  }
+};
