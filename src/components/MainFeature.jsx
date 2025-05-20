@@ -191,7 +191,7 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       const recipeId = recipeResponse.Id;
       
       console.log(`Recipe created successfully with ID: ${recipeId}`);
-      
+
       // Step 2: Create ingredients linked to the recipe
       const ingredientsData = formData.ingredients.map(ing => ({
         name: ing.name,
@@ -199,22 +199,24 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       }));
       
       const ingredientsResponse = await createIngredients(recipeId, ingredientsData);
-      
+
       // Safely check and log ingredient creation results
       if (Array.isArray(ingredientsResponse)) {
         console.log(`Created ${ingredientsResponse.length} ingredients for recipe ${recipeId}`);
         // Check if any ingredients failed to create
-        const failedIngredients = ingredientsResponse.filter(result => result && !result.success);
-        if (failedIngredients.length > 0) console.warn(`${failedIngredients.length} ingredients failed to create`);
+        const failedIngredients = ingredientsResponse.filter(result => !result.success);
+        if (failedIngredients.length > 0) {
+          console.warn(`${failedIngredients.length} ingredients failed to create`);
+        }
       }
+
       // Step 3: Create instructions linked to the recipe
       const instructionsData = formData.instructions.map((inst, index) => ({
-        name: `Step ${index + 1}`,
         step: inst.step
       }));
       
       const instructionsResponse = await createInstructions(recipeId, instructionsData);
-      
+
       // Safely check and log instruction creation results
       if (Array.isArray(instructionsResponse)) {
         console.log(`Created ${instructionsResponse.length} instructions for recipe ${recipeId}`);

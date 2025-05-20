@@ -15,11 +15,13 @@ export const createInstructions = async (recipeId, instructionsData) => {
     // Prepare array of instruction records
     // Add sequence numbers based on array order
     const recordsToCreate = instructionsData.map((instruction, index) => ({
-      Name: `Step ${index + 1}`, // Name field is required
+      // Always provide a Name field for the record (required)
+      Name: `Step ${index + 1}`,
       step: instruction.step,
-      sequence: index + 1, // Sequence starts at 1
+      // Convert sequence to string to avoid type issues
+      sequence: (index + 1).toString(),
       // Properly format the relationship to the recipe
-      recipe: recipeId.toString()
+      recipe: recipeId
     }));
     
     // Create all instructions in a single request

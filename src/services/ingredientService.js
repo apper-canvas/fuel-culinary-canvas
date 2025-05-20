@@ -14,10 +14,12 @@ export const createIngredients = async (recipeId, ingredientsData) => {
     
     // Prepare array of ingredient records
     const recordsToCreate = ingredientsData.map((ingredient) => ({
+      // Always provide a Name field for the record (required)
       Name: ingredient.name, // Name field is required
+      // Ensure amount is a string
       amount: ingredient.amount,
       // Properly format the relationship to the recipe
-      recipe: recipeId.toString()
+      recipe: recipeId
     }));
     
     // Create all ingredients in a single request
