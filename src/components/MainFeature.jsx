@@ -200,12 +200,13 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       
       const ingredientsResponse = await createIngredients(recipeId, ingredientsData);
       
-      console.log(`Created ${ingredientsResponse.length} ingredients for recipe ${recipeId}`);
-      
-      // Check if any ingredients failed to create
-      const failedIngredients = ingredientsResponse.filter(result => !result.success);
-      if (failedIngredients.length > 0) console.warn(`${failedIngredients.length} ingredients failed to create`);
-      
+      // Safely check and log ingredient creation results
+      if (Array.isArray(ingredientsResponse)) {
+        console.log(`Created ${ingredientsResponse.length} ingredients for recipe ${recipeId}`);
+        // Check if any ingredients failed to create
+        const failedIngredients = ingredientsResponse.filter(result => result && !result.success);
+        if (failedIngredients.length > 0) console.warn(`${failedIngredients.length} ingredients failed to create`);
+      }
       // Step 3: Create instructions linked to the recipe
       const instructionsData = formData.instructions.map((inst, index) => ({
         name: `Step ${index + 1}`,
@@ -214,11 +215,13 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       
       const instructionsResponse = await createInstructions(recipeId, instructionsData);
       
-      console.log(`Created ${instructionsResponse.length} instructions for recipe ${recipeId}`);
-      
-      // Check if any instructions failed to create
-      const failedInstructions = instructionsResponse.filter(result => !result.success);
-      if (failedInstructions.length > 0) console.warn(`${failedInstructions.length} instructions failed to create`);
+      // Safely check and log instruction creation results
+      if (Array.isArray(instructionsResponse)) {
+        console.log(`Created ${instructionsResponse.length} instructions for recipe ${recipeId}`);
+        // Check if any instructions failed to create
+        const failedInstructions = instructionsResponse.filter(result => result && !result.success);
+        if (failedInstructions.length > 0) console.warn(`${failedInstructions.length} instructions failed to create`);
+      }
       
       // Notify parent component with new recipe if callback exists
       if (onAddRecipe) {
