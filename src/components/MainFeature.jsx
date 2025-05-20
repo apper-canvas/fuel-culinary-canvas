@@ -183,7 +183,14 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       
       const recipeResponse = await createRecipe(recipeData);
       
+      if (!recipeResponse || !recipeResponse.Id) {
+        throw new Error('Failed to create recipe: Invalid recipe ID returned');
+      }
+      
+      // Use the recipe ID for child records
       const recipeId = recipeResponse.Id;
+      
+      console.log(`Recipe created successfully with ID: ${recipeId}`);
       
       // Step 2: Create ingredients linked to the recipe
       const ingredientsData = formData.ingredients.map(ing => ({
@@ -191,7 +198,13 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
         amount: `${ing.quantity} ${ing.unit}`.trim()
       }));
       
-      await createIngredients(recipeId, ingredientsData);
+      const ingredientsResponse = await createIngredients(recipeId, ingredientsData);
+      
+      console.log(`Created ${ingredientsResponse.length} ingredients for recipe ${recipeId}`);
+      
+      // Check if any ingredients failed to create
+      const failedIngredients = ingredientsResponse.filter(result => !result.success);
+      if (failedIngredients.length > 0) console.warn(`${failedIngredients.length} ingredients failed to create`);
       
       // Step 3: Create instructions linked to the recipe
       const instructionsData = formData.instructions.map((inst, index) => ({
@@ -199,41 +212,37 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
         step: inst.step
       }));
       
-      await createInstructions(recipeId, instructionsData);
+      const instructionsResponse = await createInstructions(recipeId, instructionsData);
+      
+      console.log(`Created ${instructionsResponse.length} instructions for recipe ${recipeId}`);
+      
+      // Check if any instructions failed to create
+      const failedInstructions = instructionsResponse.filter(result => !result.success);
+      if (failedInstructions.length > 0) console.warn(`${failedInstructions.length} instructions failed to create`);
       
       // Notify parent component with new recipe if callback exists
       if (onAddRecipe) {
         onAddRecipe(recipeResponse);
-      };
+      }
       
       resetForm();
       setIsFormOpen(false);
-    setFormData({
-      title: '',
-      description: '',
-      imageUrl: '',
-      prepTime: 0,
-      cookTime: 0,
-      servings: 1,
-      difficultyLevel: 'medium',
-      ingredients: [{ id: Date.now(), name: '', quantity: '', unit: '' }],
-      instructions: [{ id: Date.now(), step: '' }],
-      categories: []
-    });
 
       toast.success("Recipe added successfully!");
     } catch (error) {
       console.error("Error saving recipe:", error);
       
       // Provide more specific error messages to help troubleshoot
-      if (error.message && error.message.includes('Failed to create recipe')) {
-        toast.error(`${error.message}. Please check your recipe details and try again.`);
-      } else if (error.message && error.message.includes('Failed to create ingredients')) {
-        toast.error(`${error.message}. Recipe was created but ingredients couldn't be added.`);
-      } else if (error.message && error.message.includes('Failed to create instructions')) {
-        toast.error(`${error.message}. Recipe and ingredients were created but instructions couldn't be added.`);
+      const errorMsg = error.message || 'Unknown error';
+      
+      if (errorMsg.includes('Failed to create recipe')) {
+        toast.error(`${errorMsg}. Please check your recipe details and try again.`);
+      } else if (errorMsg.includes('Failed to create ingredients')) {
+        toast.error(`${errorMsg}. Recipe was created but ingredients couldn't be added.`);
+      } else if (errorMsg.includes('Failed to create instructions')) {
+        toast.error(`${errorMsg}. Recipe and ingredients were created but instructions couldn't be added.`);
       } else {
-        toast.error("Failed to save recipe. Please try again.");
+        toast.error(`Failed to save recipe: ${errorMsg}. Please try again.`);
       }
     } finally {
       setIsSubmitting(false);

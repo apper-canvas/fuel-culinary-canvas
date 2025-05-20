@@ -18,7 +18,8 @@ export const createInstructions = async (recipeId, instructionsData) => {
       Name: `Step ${index + 1}`, // Name field is required
       step: instruction.step,
       sequence: index + 1, // Sequence starts at 1
-      recipe: recipeId // Link to parent recipe
+      // Properly format the relationship to the recipe
+      recipe: recipeId.toString()
     }));
     
     // Create all instructions in a single request
@@ -32,9 +33,15 @@ export const createInstructions = async (recipeId, instructionsData) => {
     }
     
     const response = await client.createRecord('instruction', params);
-    if (!response || !response.results) {
-      throw new Error('Failed to create instructions: Invalid response from server');
+    
+    // Enhanced error checking and logging
+    if (!response) {
+      throw new Error('Failed to create instructions: No response received');
     }
+    if (!response.results) {
+      throw new Error(`Failed to create instructions: Invalid response - ${JSON.stringify(response)}`);
+    }
+    
     return response.results;
   } catch (error) {
     throw error;

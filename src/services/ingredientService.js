@@ -13,10 +13,11 @@ export const createIngredients = async (recipeId, ingredientsData) => {
     const client = getClient();
     
     // Prepare array of ingredient records
-    const recordsToCreate = ingredientsData.map(ingredient => ({
+    const recordsToCreate = ingredientsData.map((ingredient) => ({
       Name: ingredient.name, // Name field is required
       amount: ingredient.amount,
-      recipe: recipeId // Link to parent recipe
+      // Properly format the relationship to the recipe
+      recipe: recipeId.toString()
     }));
     
     // Create all ingredients in a single request
@@ -30,9 +31,15 @@ export const createIngredients = async (recipeId, ingredientsData) => {
     }
     
     const response = await client.createRecord('ingredient', params);
-    if (!response || !response.results) {
-      throw new Error('Failed to create ingredients: Invalid response from server');
+    
+    // Enhanced error checking and logging
+    if (!response) {
+      throw new Error('Failed to create ingredients: No response received');
     }
+    if (!response.results) {
+      throw new Error(`Failed to create ingredients: Invalid response - ${JSON.stringify(response)}`);
+    }
+    
     return response.results;
   } catch (error) {
     throw error;
