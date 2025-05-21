@@ -279,7 +279,7 @@ const Home = forwardRef(({ recipeFormRef }, ref) => {
         <div className="text-center py-12">
           <p className="text-surface-600 dark:text-surface-400 mb-4">No recipes found. Try adjusting your search or create a new recipe.</p>
           <button 
-            onClick={() => setShowRecipeForm(true)}
+                           onClick={() => recipeFormRef.current.openForm()}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
           >
             Create Recipe
