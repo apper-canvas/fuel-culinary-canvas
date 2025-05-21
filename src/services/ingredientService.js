@@ -59,7 +59,7 @@ export const fetchIngredientsByRecipeId = async (recipeId) => {
       where: [
         {
           fieldName: 'recipe',
-          Operator: 'ExactMatch',
+          operator: 'ExactMatch',
           values: [recipeId]
         }
       ],
