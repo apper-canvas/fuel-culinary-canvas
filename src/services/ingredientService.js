@@ -7,6 +7,30 @@ const getClient = () => {
   });
 };
 
+// Create ingredients linked to a recipe
+export const createIngredients = async (recipeId, ingredientsData) => {
+  try {
+    const client = getClient();
+    
+    // Map ingredients to include the recipe ID
+    const records = ingredientsData.map(ingredient => ({
+      Name: ingredient.name,
+      amount: ingredient.amount,
+      recipe: recipeId
+    }));
+    
+    // Create all ingredients in a batch
+    const response = await client.createRecord('ingredient', {
+      records: records
+    });
+    
+    return response?.results || [];
+  } catch (error) {
+    console.error('Error creating ingredients:', error);
+    throw error;
+  }
+};
+
 // Fetch ingredients by recipe ID
 export const fetchIngredientsByRecipeId = async (recipeId) => {
   try {
