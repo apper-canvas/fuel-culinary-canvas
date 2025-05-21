@@ -88,9 +88,9 @@ export const fetchAllRecipes = async (searchTerm = '', category = 'all') => {
     if (searchTerm) {
       params.where = [
         {
-          fieldName: 'title',
-          operator: 'Contains',
-          values: [searchTerm]
+          FieldName: 'title',
+          Operator: 'Contains',
+          Values: [searchTerm]
         }
       ];
     }
@@ -99,9 +99,9 @@ export const fetchAllRecipes = async (searchTerm = '', category = 'all') => {
     if (category && category !== 'all') {
       params.where = params.where || [];
       params.where.push({
-        fieldName: 'categories',
-        operator: 'Contains',
-        values: [category]
+        FieldName: 'categories',
+        Operator: 'Contains',
+        Values: [category]
       });
     }
     

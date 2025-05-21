@@ -42,7 +42,7 @@ export const fetchIngredientsByRecipeId = async (recipeId) => {
         {
           FieldName: 'recipe',
           Operator: 'ExactMatch',
-          Values: [recipeId]
+          Values: [recipeId.toString()]
         }
       ]
     };
