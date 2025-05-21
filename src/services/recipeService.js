@@ -88,9 +88,9 @@ export const fetchAllRecipes = async (searchTerm = '', category = 'all') => {
     if (searchTerm) {
       params.where = [
         {
-          fieldName: 'title',
-          operator: 'Contains',
-          values: [searchTerm]
+          FieldName: 'title',
+          Operator: 'Contains',
+          Values: [searchTerm]
         }
       ];
     }
@@ -99,9 +99,9 @@ export const fetchAllRecipes = async (searchTerm = '', category = 'all') => {
     if (category && category !== 'all') {
       params.where = params.where || [];
       params.where.push({
-        fieldName: 'categories',
-        operator: 'Contains',
-        values: [category]
+        FieldName: 'categories',
+        Operator: 'Contains',
+        Values: [category]
       });
     }
     
@@ -109,7 +109,15 @@ export const fetchAllRecipes = async (searchTerm = '', category = 'all') => {
     return response?.data || [];
   } catch (error) {
     console.error('Error fetching recipes:', error);
-    throw error;
+    // Detailed logging to help diagnose the issue
+    if (error.response) {
+      console.error('API response error:', error.response);
+    } else if (error.request) {
+      console.error('API request error:', error.request);
+    } else {
+      console.error('Error details:', error.message);
+    }
+    return []; // Return empty array instead of throwing to prevent UI crashes
   }
 };
 

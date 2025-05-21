@@ -132,6 +132,7 @@ function Home({ recipeFormRef }) {
         console.error("Error loading recipes:", error);
         setIsError(true);
         setIsLoading(false);
+        toast.error("Failed to load recipes. Please try again later.");
       }
     };
     
