@@ -80,7 +80,7 @@ export const fetchAllRecipes = async (searchTerm = '', category = 'all') => {
     const client = getClient();
     
     const params = {
-      fields: ['Id', 'Name', 'title', 'description', 'imageUrl', 'prepTime', 'cookTime', 'servings', 'difficultyLevel', 'categories'],
+      fields: ['Id', 'Name', 'description', 'imageUrl', 'prepTime', 'cookTime', 'servings', 'difficultyLevel', 'categories'],
       orderBy: [{ field: 'ModifiedOn', direction: 'DESC' }]
     };
     
@@ -88,8 +88,8 @@ export const fetchAllRecipes = async (searchTerm = '', category = 'all') => {
     if (searchTerm) {
       params.where = [
         {
-          FieldName: 'title',
-          Operator: 'Contains',
+          fieldName: 'Name',
+          operator: 'Contains',
           Values: [searchTerm]
         }
       ];
@@ -99,8 +99,8 @@ export const fetchAllRecipes = async (searchTerm = '', category = 'all') => {
     if (category && category !== 'all') {
       params.where = params.where || [];
       params.where.push({
-        FieldName: 'categories',
-        Operator: 'Contains',
+        fieldName: 'categories',
+        operator: 'Contains',
         Values: [category]
       });
     }
@@ -108,14 +108,15 @@ export const fetchAllRecipes = async (searchTerm = '', category = 'all') => {
     const response = await client.fetchRecords('recipe', params);
     return response?.data || [];
   } catch (error) {
-    console.error('Error fetching recipes:', error);
-    // Detailed logging to help diagnose the issue
-    if (error.response) {
-      console.error('API response error:', error.response);
-    } else if (error.request) {
-      console.error('API request error:', error.request);
-    } else {
-      console.error('Error details:', error.message);
+    console.error('Error fetching recipes:', error.message || error);
+    
+    // Log the error details in a format that won't trigger additional SDK errors
+    try {
+      const errorDetails = JSON.stringify(error, Object.getOwnPropertyNames(error));
+      console.error('Error details:', errorDetails);
+    } catch (e) {
+      // If we can't stringify the error, just log it as is
+      console.error('Additional error details unavailable');
     }
     return []; // Return empty array instead of throwing to prevent UI crashes
   }

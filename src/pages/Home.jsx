@@ -306,7 +306,7 @@ const Home = forwardRef(({ recipeFormRef }, ref) => {
               
               <div className="p-4">
                 <h2 className="text-xl font-semibold text-surface-900 dark:text-surface-100 mb-2">
-                  {recipe.title || recipe.Name}
+                  {recipe.Name}
                 </h2>
                 
                 <p className="text-surface-600 dark:text-surface-400 text-sm mb-4 line-clamp-2">
@@ -327,7 +327,7 @@ const Home = forwardRef(({ recipeFormRef }, ref) => {
                 
                 {recipe.categories && (
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {recipe.categories.split(',').map((category, index) => (
+                    {(recipe.categories || '').split(',').filter(Boolean).map((category, index) => (
                       <span key={index} className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 rounded-full">
                         {category}
                       </span>
