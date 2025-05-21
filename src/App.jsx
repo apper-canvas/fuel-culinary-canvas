@@ -143,6 +143,7 @@ function App() {
   };
   
   const openRecipeForm = () => {
+    setIsMenuOpen(false); // Close mobile menu when opening recipe form
     if (recipeFormRef.current) {
       recipeFormRef.current.openForm();
     }
@@ -237,8 +238,7 @@ function App() {
                     href="#" 
                     onClick={(e) => {
                       e.preventDefault();
-                      openRecipeForm();
-                      setIsMenuOpen(false);
+                      openRecipeForm(); // This will also close the menu
                     }}
                     className="text-surface-700 dark:text-surface-300 hover:text-primary dark:hover:text-primary transition py-2">
                     New Recipe
