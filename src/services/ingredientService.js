@@ -12,13 +12,19 @@ export const createIngredients = async (recipeId, ingredientsData) => {
   try {
     const client = getClient();
     
-    // Map ingredients to include the recipe ID
-    const records = ingredientsData.map(ingredient => ({
-      Name: ingredient.name,
-      amount: ingredient.amount,
-      recipe: recipeId
-    }));
+    // Validate recipeId
+    if (!recipeId) {
+      throw new Error('Recipe ID is required to create ingredients');
+    }
     
+    // Map ingredients to match the exact schema from the Tables & Fields JSON
+    const records = ingredientsData.map(ingredient => ({
+      Name: ingredient.name || `Ingredient ${Date.now()}`,  // Required field
+      Tags: '',  // Empty string for Tags field as it exists in the schema
+      amount: ingredient.amount || '',  // Using the amount field from schema
+      recipe: recipeId  // This is the master-detail relationship field
+    }));
+
     // Create all ingredients in a batch
     const response = await client.createRecord('ingredient', {
       records: records
@@ -26,7 +32,14 @@ export const createIngredients = async (recipeId, ingredientsData) => {
     
     return response?.results || [];
   } catch (error) {
-    console.error('Error creating ingredients:', error);
+    // More detailed error logging
+    console.error('Error creating ingredients:', error.message || error);
+    
+    // Log the error details in a format that won't trigger additional errors
+    try {
+      console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    } catch (e) {}
+    
     throw error;
   }
 };

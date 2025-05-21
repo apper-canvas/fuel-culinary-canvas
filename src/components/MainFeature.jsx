@@ -171,15 +171,15 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
     try {
       // Step 1: Create the recipe record
       const recipeData = {
-        title: formData.title,
-        description: formData.description || '',
+        title: formData.title.trim(),
+        description: formData.description.trim() || '',
         imageUrl: formData.imageUrl || '',
         prepTime: parseInt(formData.prepTime),
         cookTime: parseInt(formData.cookTime),
         servings: parseInt(formData.servings),
         difficultyLevel: formData.difficultyLevel,
-        // Ensure categories is an array
-        categories: Array.isArray(formData.categories) ? formData.categories : []
+        // Categories will be converted to Tags in the service
+        categories: formData.categories
       };
       
       const recipeResponse = await createRecipe(recipeData);
@@ -195,7 +195,9 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
 
       // Step 2: Create ingredients linked to the recipe
       const ingredientsData = formData.ingredients.map(ing => ({
-        name: ing.name,
+        // Ensure all fields are properly defined
+        name: ing.name.trim(),
+        // Format quantity and unit into a single amount string
         amount: `${ing.quantity} ${ing.unit}`.trim()
       }));
       
@@ -213,14 +215,15 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
 
       // Step 3: Create instructions linked to the recipe
       const instructionsData = formData.instructions.map((inst) => ({
-        // Ensure step is a string and not empty
-        step: inst.step ? inst.step.trim() : ''
+        // Ensure step is a string
+        step: inst.step ? inst.step.trim() : '',
+        // Will be overridden in the next loop, but provide a default
+        sequence: 0
       }));
       
       // Sort instructionsData by their index in the array
-      instructionsData.forEach((inst, index) => {
-        inst.sequence = index + 1;
-      });
+      // and assign sequence numbers
+      instructionsData.forEach((inst, index) => { inst.sequence = index + 1; });
       
       const instructionsResponse = await createInstructions(recipeId, instructionsData);
 
@@ -228,8 +231,14 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       if (Array.isArray(instructionsResponse)) {
         console.log(`Created ${instructionsResponse.length} instructions for recipe ${recipeId}`);
         // Check if any instructions failed to create
-        const failedInstructions = instructionsResponse.filter(result => result && !result.success);
-        if (failedInstructions.length > 0) console.warn(`${failedInstructions.length} instructions failed to create`);
+        const failedInstructions = instructionsResponse.filter(result => !result || !result.success);
+        if (failedInstructions.length > 0) {
+          console.warn(`${failedInstructions.length} instructions failed to create`);
+        }
+      }
+      else {
+        console.warn('Unexpected response format from createInstructions:', 
+          typeof instructionsResponse, instructionsResponse);
       }
       
       // Notify parent component with new recipe if callback exists
@@ -244,16 +253,28 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
     } catch (error) {
       console.error("Error saving recipe:", error);
       
-      // Provide more specific error messages to help troubleshoot
-      const errorMsg = error.message || 'Unknown error';
+      // Extract the error message or use a generic one
+      let errorMsg = 'Unknown error occurred';
       
-      if (errorMsg.includes('Failed to create recipe')) {
-        toast.error(`${errorMsg}. Please check your recipe details and try again.`);
-      } else if (errorMsg.includes('Failed to create ingredients')) {
-        toast.error(`${errorMsg}. Recipe was created but ingredients couldn't be added.`);
-      } else if (errorMsg.includes('Failed to create instructions')) {
-        toast.error(`${errorMsg}. Recipe and ingredients were created but instructions couldn't be added.`);
-      } else {
+      if (error.message) {
+        errorMsg = error.message;
+      } else if (typeof error === 'string') {
+        errorMsg = error;
+      } else if (error.toString && error.toString() !== '[object Object]') {
+        errorMsg = error.toString();
+      }
+      
+      // Check for specific error conditions based on the error message
+      if (errorMsg.includes('Invalid response') || errorMsg.includes('Invalid result structure')) {
+        toast.error(`Server returned an unexpected response. Please try again.`);
+      }
+      else if (errorMsg.includes('Recipe ID is required')) {
+        toast.error(`Internal error: Recipe ID missing for related items. Please try again.`);
+      }
+      else if (errorMsg.includes('Server rejected')) {
+        toast.error(`The server rejected your request. Please check your recipe details.`);
+      }
+      else {
         toast.error(`Failed to save recipe: ${errorMsg}. Please try again.`);
       }
     } finally {

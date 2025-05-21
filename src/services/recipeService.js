@@ -34,39 +34,48 @@ export const fetchUserRecipes = async (options = {}) => {
 export const createRecipe = async (recipeData) => {
   try {
     const client = getClient();
-
-    // Convert categories array to comma-separated string (Tag type format)
-    let categories = recipeData.categories;
-    if (Array.isArray(categories)) {
-      categories = categories.join(',');
-    }
-
-    // Verify required fields are present
+    
+    // Validate required fields
     if (!recipeData.title) {
       throw new Error('Recipe title is required');
     }
 
-    // Prepare data according to the table schema
+    // Convert categories array to comma-separated string for Tag field type
+    const categories = Array.isArray(recipeData.categories) 
+      ? recipeData.categories.join(',') 
+      : recipeData.categories || '';
+
+    // The 'Name' field is required by Apper for all tables
+    // We'll use the title as the Name field value for better display
     const params = {
       records: [{
-        Name: recipeData.title || 'Untitled Recipe', // Name field is required
-        title: recipeData.title,
-        description: recipeData.description,
-        imageUrl: recipeData.imageUrl || null,
+        // Required standard fields
+        Name: recipeData.title || 'Untitled Recipe',  // Required
+        Tags: categories,   // For categories - this matches the schema field name
+        
+        // Recipe-specific fields
+        title: recipeData.title || '',
+        description: recipeData.description || '',
+        imageUrl: recipeData.imageUrl || '',
         prepTime: parseInt(recipeData.prepTime) || 0,
         cookTime: parseInt(recipeData.cookTime) || 0,
         servings: parseInt(recipeData.servings) || 1,
-        difficultyLevel: recipeData.difficultyLevel,
-        categories: categories // Store as comma-separated string per API requirements
+        difficultyLevel: recipeData.difficultyLevel || 'medium'
       }]
     };
 
     console.log('Creating recipe with params:', JSON.stringify(params));
     const response = await client.createRecord('recipe', params);
     
-    if (!response || !response.results || !response.results[0] || !response.results[0].data) {
-      throw new Error(`Failed to create recipe: Invalid response from server: ${JSON.stringify(response)}`);
+    // More thorough response validation
+    if (!response || !response.success) {
+      throw new Error(`Server rejected recipe creation: ${JSON.stringify(response)}`);
     }
+    
+    if (!response.results || !response.results[0] || !response.results[0].success || !response.results[0].data) {
+      throw new Error(`Failed to create recipe: Invalid result structure: ${JSON.stringify(response.results)}`);
+    }
+    
     return response.results[0].data;
   } catch (error) {
     console.error('Error creating recipe:', error.message || error);
