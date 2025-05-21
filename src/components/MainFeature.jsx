@@ -220,7 +220,7 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       // Sort instructionsData by their index in the array
       instructionsData.forEach((inst, index) => {
         inst.sequence = index + 1;
-      }));
+      });
       
       const instructionsResponse = await createInstructions(recipeId, instructionsData);
 
