@@ -18,8 +18,8 @@ export const createInstructions = async (recipeId, instructionsData) => {
       // Always provide a Name field for the record (required)
       Name: `Step ${index + 1}`,
       step: instruction.step,
-      // Convert sequence to string to avoid type issues
-      sequence: (index + 1).toString(),
+      // Sequence must be a number, not a string (per schema)
+      sequence: index + 1,
       // Properly format the relationship to the recipe
       recipe: recipeId
     }));
@@ -38,10 +38,10 @@ export const createInstructions = async (recipeId, instructionsData) => {
     
     // Enhanced error checking and logging
     if (!response) {
-      throw new Error('Failed to create instructions: No response received');
+      throw new Error('Failed to create instructions: No response received from server');
     }
     if (!response.results) {
-      throw new Error(`Failed to create instructions: Invalid response - ${JSON.stringify(response)}`);
+      throw new Error(`Failed to create instructions: Invalid response structure - ${JSON.stringify(response)}`);
     }
     
     return response.results;

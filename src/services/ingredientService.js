@@ -36,10 +36,10 @@ export const createIngredients = async (recipeId, ingredientsData) => {
     
     // Enhanced error checking and logging
     if (!response) {
-      throw new Error('Failed to create ingredients: No response received');
+      throw new Error('Failed to create ingredients: No response received from server');
     }
     if (!response.results) {
-      throw new Error(`Failed to create ingredients: Invalid response - ${JSON.stringify(response)}`);
+      throw new Error(`Failed to create ingredients: Invalid response structure - ${JSON.stringify(response)}`);
     }
     
     return response.results;

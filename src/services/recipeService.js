@@ -35,19 +35,24 @@ export const createRecipe = async (recipeData) => {
   try {
     const client = getClient();
 
-    // Convert categories array to semicolon-separated string if it's an array
+    // Convert categories array to comma-separated string (Tag type format)
     let categories = recipeData.categories;
     if (Array.isArray(categories)) {
       categories = categories.join(',');
     }
 
-    // Prepare data according to the table schema, including only updateable fields
+    // Verify required fields are present
+    if (!recipeData.title) {
+      throw new Error('Recipe title is required');
+    }
+
+    // Prepare data according to the table schema
     const params = {
       records: [{
         Name: recipeData.title || 'Untitled Recipe', // Name field is required
         title: recipeData.title,
         description: recipeData.description,
-        imageUrl: recipeData.imageUrl || '',
+        imageUrl: recipeData.imageUrl || null,
         prepTime: parseInt(recipeData.prepTime) || 0,
         cookTime: parseInt(recipeData.cookTime) || 0,
         servings: parseInt(recipeData.servings) || 1,
@@ -56,9 +61,11 @@ export const createRecipe = async (recipeData) => {
       }]
     };
 
+    console.log('Creating recipe with params:', JSON.stringify(params));
     const response = await client.createRecord('recipe', params);
+    
     if (!response || !response.results || !response.results[0] || !response.results[0].data) {
-      throw new Error('Failed to create recipe: Invalid response from server');
+      throw new Error(`Failed to create recipe: Invalid response from server: ${JSON.stringify(response)}`);
     }
     return response.results[0].data;
   } catch (error) {

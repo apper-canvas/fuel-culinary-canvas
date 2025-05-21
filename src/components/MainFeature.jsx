@@ -172,13 +172,14 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       // Step 1: Create the recipe record
       const recipeData = {
         title: formData.title,
-        description: formData.description,
+        description: formData.description || '',
         imageUrl: formData.imageUrl || '',
         prepTime: parseInt(formData.prepTime),
         cookTime: parseInt(formData.cookTime),
         servings: parseInt(formData.servings),
         difficultyLevel: formData.difficultyLevel,
-        categories: formData.categories // Already an array, will be formatted in service
+        // Ensure categories is an array
+        categories: Array.isArray(formData.categories) ? formData.categories : []
       };
       
       const recipeResponse = await createRecipe(recipeData);
@@ -211,8 +212,14 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       }
 
       // Step 3: Create instructions linked to the recipe
-      const instructionsData = formData.instructions.map((inst, index) => ({
-        step: inst.step
+      const instructionsData = formData.instructions.map((inst) => ({
+        // Ensure step is a string and not empty
+        step: inst.step ? inst.step.trim() : ''
+      }));
+      
+      // Sort instructionsData by their index in the array
+      instructionsData.forEach((inst, index) => {
+        inst.sequence = index + 1;
       }));
       
       const instructionsResponse = await createInstructions(recipeId, instructionsData);
