@@ -1,435 +1,353 @@
-import { useState, useEffect, createElement } from 'react';
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { useSelector } from 'react-redux';
-import { fetchAllRecipes, deleteRecipe } from '../services/recipeService';
-import { fetchIngredientsByRecipeId } from '../services/ingredientService';
-import { fetchInstructionsByRecipeId } from '../services/instructionService';
-import MainFeature from '../components/MainFeature';
-import { AnimatePresence } from 'framer-motion';
+import { format } from 'date-fns';
 import getIcon from '../utils/iconUtils';
+import { fetchAllRecipes, createRecipe, deleteRecipe } from '../services/recipeService';
+import { createIngredients } from '../services/ingredientService';
+import { createInstructions } from '../services/instructionService';
+import MainFeature from '../components/MainFeature';
 
-// Homepage component
-function Home({ recipeFormRef }) {
-  // Icon declarations
-  const UtensilsIcon = getIcon('Utensils');
-  const SearchIcon = getIcon('Search');
-  const FilterIcon = getIcon('Filter');
-  const BookOpenIcon = getIcon('BookOpen');
-  const Clock = getIcon('Clock');
-  const ChefHat = getIcon('ChefHat');
-  const XIcon = getIcon('X');
-  
-  // State for viewing a recipe
-  const [viewingRecipe, setViewingRecipe] = useState(null);
-  const [viewingIngredients, setViewingIngredients] = useState([]);
-  const [viewingInstructions, setViewingInstructions] = useState([]); 
-  const [isLoading, setIsLoading] = useState(false);
+// Home page component that displays recipes
+const Home = forwardRef(({ recipeFormRef }, ref) => {
+  // State for recipes and UI
   const [recipes, setRecipes] = useState([]);
-  
-  // State for recipes
-  // Additional states for recipe management
-  const [isError, setIsError] = useState(false);
-  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-  
-  // Get the user from Redux store
-  const { user } = useSelector((state) => state.user);
-  
-  // State for search and filters
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [category, setCategory] = useState('all');
+  const [showRecipeForm, setShowRecipeForm] = useState(false);
+  const [newRecipe, setNewRecipe] = useState({
+    title: '',
+    description: '',
+    imageUrl: '',
+    prepTime: 30,
+    cookTime: 45,
+    servings: 4,
+    difficultyLevel: 'Medium',
+    categories: []
+  });
+  const [ingredients, setIngredients] = useState([{ name: '', amount: '' }]);
+  const [instructions, setInstructions] = useState([{ step: '', sequence: 1 }]);
+  const [submitting, setSubmitting] = useState(false);
   
-  // Categories for filtering
+  // Icons
+  const SearchIcon = getIcon('Search');
+  const PlusIcon = getIcon('Plus');
+  const MinusIcon = getIcon('Minus');
+  const ChevronDownIcon = getIcon('ChevronDown');
+  const ClockIcon = getIcon('Clock');
+  const UsersIcon = getIcon('Users');
+  const AlertTriangleIcon = getIcon('AlertTriangle');
+  const XIcon = getIcon('X');
+  const TrashIcon = getIcon('Trash');
+  
+  // Categories for recipes
   const categories = [
-    { id: 'all', name: 'All Recipes' },
-    { id: 'breakfast', name: 'Breakfast' },
-    { id: 'lunch', name: 'Lunch' },
-    { id: 'dinner', name: 'Dinner' },
-    { id: 'dessert', name: 'Dessert' },
-    { id: 'snack', name: 'Snack' }
+    { value: 'all', label: 'All Categories' },
+    { value: 'breakfast', label: 'Breakfast' },
+    { value: 'lunch', label: 'Lunch' },
+    { value: 'dinner', label: 'Dinner' },
+    { value: 'dessert', label: 'Dessert' },
+    { value: 'snack', label: 'Snack' },
+    { value: 'vegetarian', label: 'Vegetarian' },
+    { value: 'vegan', label: 'Vegan' }
   ];
   
-  // View recipe details
-  const handleViewRecipe = async (recipe) => {
-    try {
-      setIsLoadingDetails(true);
-      setViewingRecipe(recipe);
-      
-      // Fetch ingredients and instructions for this recipe
-      const [ingredientsData, instructionsData] = await Promise.all([
-        fetchIngredientsByRecipeId(recipe.Id),
-        fetchInstructionsByRecipeId(recipe.Id)
-      ]);
-      
-      setViewingIngredients(ingredientsData);
-      setViewingInstructions(instructionsData);
-      setIsLoadingDetails(false);
-    } catch (error) {
-      console.error("Error loading recipe details:", error);
-      toast.error("Failed to load recipe details");
-      setIsLoadingDetails(false);
-    }
-  };
-  
-  const handleAddRecipe = async (recipe) => {
-    // The recipe is already saved in the backend by MainFeature component
-    // We just need to refresh the recipes list
-    try {
-      setIsLoading(true);
-      const recipesData = await fetchAllRecipes(searchTerm, activeFilter);
-      setRecipes(recipesData);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error refreshing recipes:", error);
-      setIsLoading(false);
-      toast.error("Failed to refresh recipes list");
-    }
-  };
-  
-  // Close recipe details modal
-  const closeRecipeDetails = () => {
-    setViewingRecipe(null);
-    setViewingIngredients([]);
-    setViewingInstructions([]);
-  };
-  
-  // Confirm and delete recipe
-  const confirmDeleteRecipe = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this recipe?")) {
-      return;
-    }
-    
-    try {
-      await deleteRecipe(id);
-      
-      // Close the detail view if we're deleting the recipe we're viewing
-      if (viewingRecipe && viewingRecipe.Id === id) {
-        closeRecipeDetails();
-      }
-      
-      // Refresh the recipes list
-      setIsLoading(true);
-      const recipesData = await fetchAllRecipes(searchTerm, activeFilter);
-      setRecipes(recipesData);
-      setIsLoading(false);
-      
-      toast.success("Recipe deleted!");
-    } catch (error) {
-      console.error("Error deleting recipe:", error);
-      toast.error("Failed to delete recipe");
-    }
-  };
-  
-  // Fetch recipes when component mounts or filters change
+  // Difficulty levels for recipes
+  const difficultyLevels = [
+    { value: 'Easy', label: 'Easy' },
+    { value: 'Medium', label: 'Medium' },
+    { value: 'Hard', label: 'Hard' }
+  ];
+
+  // Load recipes when component mounts or when search/filter changes
   useEffect(() => {
-    const loadRecipes = async () => {
-      try {
-        setIsLoading(true);
-        const recipesData = await fetchAllRecipes(searchTerm, activeFilter);
-        setRecipes(recipesData);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error loading recipes:", error);
-        setIsError(true);
-        setIsLoading(false);
-        toast.error("Failed to load recipes. Please try again later.");
-      }
-    };
-    
     loadRecipes();
-  }, [searchTerm, activeFilter]);
+  }, [searchTerm, category]);
+
+  // Function to load recipes with proper error handling
+  const loadRecipes = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const data = await fetchAllRecipes(searchTerm, category);
+      setRecipes(data);
+    } catch (err) {
+      setError('Failed to load recipes. Please try again later.');
+      console.error('Error loading recipes:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
   
+  // Expose the recipe form methods to parent components
+  useImperativeHandle(recipeFormRef, () => ({
+    openForm: () => {
+      setShowRecipeForm(true);
+    }
+  }));
+  
+  // Add ingredient field
+  const addIngredient = () => {
+    setIngredients([...ingredients, { name: '', amount: '' }]);
+  };
+  
+  // Remove ingredient field
+  const removeIngredient = (index) => {
+    if (ingredients.length > 1) {
+      const newIngredients = [...ingredients];
+      newIngredients.splice(index, 1);
+      setIngredients(newIngredients);
+    }
+  };
+  
+  // Update ingredient field
+  const updateIngredient = (index, field, value) => {
+    const newIngredients = [...ingredients];
+    newIngredients[index][field] = value;
+    setIngredients(newIngredients);
+  };
+  
+  // Add instruction field
+  const addInstruction = () => {
+    setInstructions([...instructions, { step: '', sequence: instructions.length + 1 }]);
+  };
+  
+  // Remove instruction field
+  const removeInstruction = (index) => {
+    if (instructions.length > 1) {
+      const newInstructions = [...instructions];
+      newInstructions.splice(index, 1);
+      // Update sequence numbers
+      newInstructions.forEach((instruction, idx) => {
+        instruction.sequence = idx + 1;
+      });
+      setInstructions(newInstructions);
+    }
+  };
+  
+  // Update instruction field
+  const updateInstruction = (index, value) => {
+    const newInstructions = [...instructions];
+    newInstructions[index].step = value;
+    setInstructions(newInstructions);
+  };
+  
+  // Handle form submission with service integration
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    
+    try {
+      // Validate form
+      if (!newRecipe.title.trim()) {
+        toast.error('Please enter a recipe title');
+        setSubmitting(false);
+        return;
+      }
+      
+      // Create the recipe
+      const recipeResult = await createRecipe(newRecipe);
+      
+      if (!recipeResult || !recipeResult.Id) {
+        throw new Error('Failed to create recipe');
+      }
+      
+      const recipeId = recipeResult.Id;
+      
+      // Create ingredients
+      const validIngredients = ingredients.filter(ing => ing.name.trim() && ing.amount.trim());
+      if (validIngredients.length > 0) {
+        await createIngredients(recipeId, validIngredients);
+      }
+      
+      // Create instructions
+      const validInstructions = instructions.filter(ins => ins.step.trim());
+      if (validInstructions.length > 0) {
+        await createInstructions(recipeId, validInstructions);
+      }
+      
+      // Success
+      toast.success('Recipe created successfully!');
+      setShowRecipeForm(false);
+      
+      // Reset form
+      setNewRecipe({
+        title: '',
+        description: '',
+        imageUrl: '',
+        prepTime: 30,
+        cookTime: 45,
+        servings: 4,
+        difficultyLevel: 'Medium',
+        categories: []
+      });
+      setIngredients([{ name: '', amount: '' }]);
+      setInstructions([{ step: '', sequence: 1 }]);
+      
+      // Reload recipes
+      loadRecipes();
+    } catch (err) {
+      toast.error(`Failed to create recipe: ${err.message}`);
+      console.error('Error creating recipe:', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  
+  // Handle recipe deletion
+  const handleDeleteRecipe = async (recipeId) => {
+    if (window.confirm('Are you sure you want to delete this recipe?')) {
+      try {
+        await deleteRecipe(recipeId);
+        toast.success('Recipe deleted successfully');
+        loadRecipes();
+      } catch (err) {
+        toast.error('Failed to delete recipe');
+        console.error('Error deleting recipe:', err);
+      }
+    }
+  };
+  
+  // Handle category selection in new recipe form
+  const handleCategoryChange = (e) => {
+    const value = e.target.value;
+    setNewRecipe(prev => {
+      const categories = [...prev.categories];
+      const index = categories.indexOf(value);
+      
+      if (index === -1) {
+        categories.push(value);
+      } else {
+        categories.splice(index, 1);
+      }
+      
+      return { ...prev, categories };
+    });
+  };
+
   return (
-    <div className="container mx-auto px-4 py-6 md:py-10">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-10 text-center"
-      >
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          Your Digital Recipe Collection
-        </h1>
-        <p className="text-surface-600 dark:text-surface-300 max-w-2xl mx-auto">
-          Create, save, and organize your favorite recipes in one beautiful place.
-          Never lose a recipe again!
-        </p>
-      </motion.div>
+    <div className="container mx-auto px-4 py-8">
+      <MainFeature />
       
-      {/* Main Feature Component - Recipe Form */}
-      <MainFeature ref={recipeFormRef} onAddRecipe={handleAddRecipe} />
-      
-      {/* Search and Filter Section */}
-      <div className="mt-16 mb-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-            <BookOpenIcon className="h-7 w-7 text-primary" />
-            <span>Your Recipe Collection</span>
-          </h2>
-          
-          <div className="relative w-full md:w-auto">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search recipes or ingredients..."
-              className="input-field pl-10 pr-4 py-2 w-full md:w-60 lg:w-80"
-            />
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-surface-400" />
-          </div>
+      {/* Recipe Search & Filter */}
+      <div className="flex flex-col md:flex-row gap-4 mb-8 items-center">
+        <div className="relative w-full md:w-auto flex-grow">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search recipes..."
+            className="w-full px-4 py-2 pl-10 rounded-lg border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 text-surface-800 dark:text-surface-200 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-400 w-5 h-5" />
         </div>
         
-        {/* Filter Chips */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {categories.map(category => (
-            <button
-              key={category.id}
-              onClick={() => setActiveFilter(category.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 
-                ${activeFilter === category.id 
-                  ? 'bg-primary text-white' 
-                  : 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700'}`}
-            >
-              {category.name}
-            </button>
-          ))}
+        <div className="w-full md:w-auto">
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 text-surface-800 dark:text-surface-200 focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            {categories.map((cat) => (
+              <option key={cat.value} value={cat.value}>{cat.label}</option>
+            ))}
+          </select>
         </div>
       </div>
+      
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-4 rounded-lg mb-6 flex items-center gap-2">
+          <AlertTriangleIcon className="w-5 h-5 flex-shrink-0" />
+          <p>{error}</p>
+        </div>
+      )}
+      
+      {/* Loading State */}
+      {loading && (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-surface-200 border-t-primary"></div>
+          <p className="mt-2 text-surface-600 dark:text-surface-400">Loading recipes...</p>
+        </div>
+      )}
       
       {/* Recipes Grid */}
-      {/* Loading state */}
-      {isLoading && (
-        <div className="w-full flex justify-center my-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      {!loading && recipes.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-surface-600 dark:text-surface-400 mb-4">No recipes found. Try adjusting your search or create a new recipe.</p>
+          <button 
+            onClick={() => setShowRecipeForm(true)}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+          >
+            Create Recipe
+          </button>
         </div>
-      )}
-      
-      {/* Error state */}
-      {isError && (
-        <div className="w-full flex flex-col items-center justify-center my-12 text-center">
-          <div className="text-red-500 mb-4">
-            {createElement(getIcon('AlertTriangle'), { className: "h-12 w-12 mx-auto" })}
-          </div>
-          <h3 className="text-xl font-medium text-red-600 dark:text-red-400 mb-2">
-            Error Loading Recipes
-          </h3>
-          <p className="text-surface-600 dark:text-surface-400 mb-4">
-            There was a problem loading your recipes. Please try again later.
-          </p>
-        </div>
-      )}
-      
-      {/* Recipe Grid */}
-      {!isLoading && !isError && (
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recipes.length > 0 ? (
-            recipes.map(recipe => (
-              <motion.div
-                key={recipe.Id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ y: -5 }}
-                className="recipe-card group"
-              >
-                <h3 className="text-xl font-semibold mb-2 line-clamp-1">{recipe.title}</h3>
-                <div className="relative rounded-xl overflow-hidden h-48 mb-4">
-                  <img 
-                    src={recipe.imageUrl || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"} 
-                    onError={(e) => {
-                      e.target.src = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80";
-                    }}
-                    alt={recipe.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <div className="flex gap-2 mb-2">
-                      {recipe.categories && recipe.categories.split(',').map(cat => (
-                        <span key={cat} className="text-xs font-medium bg-primary/80 text-white px-2 py-1 rounded-full">
-                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+          {recipes.map((recipe) => (
+            <motion.div
+              key={recipe.Id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white dark:bg-surface-800 rounded-xl shadow-card dark:shadow-none border border-surface-200 dark:border-surface-700 overflow-hidden"
+            >
+              {recipe.imageUrl ? (
+                <div className="w-full h-48 bg-surface-100 dark:bg-surface-700 relative overflow-hidden">
+                  <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-full object-cover" />
                 </div>
-                
-                <div className="flex gap-4 mb-3">
-                  <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
-                    <Clock className="h-4 w-4" />
-                    <span className="text-sm">{recipe.cookTime + recipe.prepTime} min</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
-                    <ChefHat className="h-4 w-4" />
-                    <span className="text-sm">{recipe.difficultyLevel}</span>
-                  </div>
+              ) : (
+                <div className="w-full h-48 bg-surface-100 dark:bg-surface-700 flex items-center justify-center">
+                  <span className="text-surface-400 dark:text-surface-500">No image</span>
                 </div>
+              )}
+              
+              <div className="p-4">
+                <h2 className="text-xl font-semibold text-surface-900 dark:text-surface-100 mb-2">
+                  {recipe.title || recipe.Name}
+                </h2>
                 
                 <p className="text-surface-600 dark:text-surface-400 text-sm mb-4 line-clamp-2">
-                  {recipe.description || "No description available."}
+                  {recipe.description || 'No description provided'}
                 </p>
                 
-                <div className="flex justify-between items-center">
-                  <button 
-                    onClick={() => handleViewRecipe(recipe)} 
-                    className="btn btn-outline text-sm">View Recipe</button>
-                  <button 
-                    onClick={() => confirmDeleteRecipe(recipe.Id)}
-                    className="p-2 text-surface-500 hover:text-red-500 transition-colors"
-                    aria-label="Delete recipe"
-                  > 
-                    {createElement(getIcon('Trash2'), { className: "h-5 w-5" })}
-                  </button>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex items-center text-surface-500 dark:text-surface-400 text-sm">
+                    <ClockIcon className="w-4 h-4 mr-1" />
+                    <span>{recipe.prepTime + recipe.cookTime || 0} min</span>
+                  </div>
+                  
+                  <div className="flex items-center text-surface-500 dark:text-surface-400 text-sm">
+                    <UsersIcon className="w-4 h-4 mr-1" />
+                    <span>{recipe.servings || 4} servings</span>
+                  </div>
                 </div>
-              </motion.div>
-            ))
-          ) : (
-          <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-            <UtensilsIcon className="h-16 w-16 text-surface-300 dark:text-surface-600 mb-4" />
-            <h3 className="text-xl font-medium text-surface-700 dark:text-surface-300 mb-1">No recipes found</h3>
-            <p className="text-surface-500 dark:text-surface-400 max-w-md">
-              {recipes.length === 0 
-                ? "Start adding your favorite recipes using the form above." 
-                : "Try adjusting your search or filters to find what you're looking for."}
-            </p>
-          </div>
-        )}
-      </div>
-      )}
-      
-      {/* Recipe Detail Modal */}
-      <AnimatePresence>
-        {viewingRecipe && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={closeRecipeDetails}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-auto"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="relative h-64 md:h-80">
-                <img 
-                  src={viewingRecipe.imageUrl || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"} 
-                  onError={(e) => {
-                    e.target.src = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80";
-                  }}
-                  alt={viewingRecipe.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-                <button 
-                  onClick={closeRecipeDetails}
-                  className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
-                  aria-label="Close recipe details"
-                >
-                  <XIcon className="h-5 w-5" />
-                </button>
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <div className="flex gap-2 mb-2">
-                    {viewingRecipe.categories && viewingRecipe.categories.split(',').map(cat => (
-                      <span key={cat} className="text-xs font-medium bg-primary/80 text-white px-2 py-1 rounded-full">
-                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                
+                {recipe.categories && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {recipe.categories.split(',').map((category, index) => (
+                      <span key={index} className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 rounded-full">
+                        {category}
                       </span>
                     ))}
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-white">{viewingRecipe.title}</h2>
-                </div>
+                )}
+                
+                <button
+                  onClick={() => handleDeleteRecipe(recipe.Id)}
+                  className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors mt-2"
+                >
+                  Delete Recipe
+                </button>
               </div>
-              
-              {isLoadingDetails ? (
-                // Loading state for details
-                <div className="flex flex-col items-center justify-center p-12">
-                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary mb-4"></div>
-                  <p className="text-surface-600 dark:text-surface-400">Loading recipe details...</p>
-                </div>
-              ) : (
-                <div className="p-6">
-                  <div className="flex gap-6 mb-6 flex-wrap">
-                    <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
-                      <Clock className="h-5 w-5" />
-                      <span>Prep: {viewingRecipe.prepTime} min</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
-                      <Clock className="h-5 w-5" /> 
-                      <span>Cook: {viewingRecipe.cookTime} min</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-surface-600 dark:text-surface-300">
-                      <ChefHat className="h-5 w-5" />
-                      <span>Difficulty: {viewingRecipe.difficultyLevel}</span>
-                    </div>
-                  </div>
-                  
-                  <p className="text-surface-700 dark:text-surface-300 mb-6">{viewingRecipe.description}</p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                      <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                     {createElement(getIcon('Egg'), { className: "h-5 w-5 text-primary" })}
-                     <span>Ingredients</span>
-                   </h3>
-                   {viewingIngredients.length === 0 ? (
-                     <p className="text-surface-500 dark:text-surface-400">No ingredients available.</p>
-                   ) : (
-                     <ul className="space-y-2">
-                       {viewingIngredients.map((ing) => (
-                         <li key={ing.Id} className="flex items-baseline gap-2">
-                           <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5"></span>
-                           <span>{ing.Name} {ing.amount && `- ${ing.amount}`}</span>
-                         </li>
-                       ))}
-                     </ul>
-                   )}
-                 </div>
-                 
-                 <div>
-                   <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    {createElement(getIcon('ListOrdered'), { className: "h-5 w-5 text-primary" })}
-                     <span>Instructions</span>
-                   </h3>
-                   {viewingInstructions.length === 0 ? (
-                     <p className="text-surface-500 dark:text-surface-400">No instructions available.</p>
-                   ) : (
-                     <div className="space-y-4">
-                       {viewingInstructions.map((inst) => (
-                         <div key={inst.Id} className="flex gap-3">
-                           <div className="bg-primary text-white rounded-full w-6 h-6 flex-shrink-0 flex items-center justify-center">
-                             {inst.sequence || "?"}
-                           </div>
-                           <p className="text-surface-700 dark:text-surface-300">{inst.step}</p>
-                         </div>
-                       ))}
-                      </div>
-                    )}
-                  </div>
-                  </div>
-                  <div className="flex gap-4 mt-6">
-                    <button 
-                        onClick={closeRecipeDetails}
-                        className="btn btn-outline"
-                    >
-                      Close
-                    </button>
-                    <button 
-                      onClick={() => {
-                        confirmDeleteRecipe(viewingRecipe.Id);
-                      }}
-                      className="btn bg-red-500 hover:bg-red-600 text-white"
-                    >
-                      Delete Recipe
-                    </button>
-                  </div>
-                  </div>
-              )}
             </motion.div>
-          </motion.div>
-          )}
-      </AnimatePresence>
+          ))}
+        </div>
+      )}
     </div>
   );
-}
+});
 
 export default Home;
