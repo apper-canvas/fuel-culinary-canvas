@@ -29,18 +29,25 @@ export const createIngredients = async (recipeId, ingredientsData) => {
     const response = await client.createRecord('ingredient', {
       records: records
     });
+
+    // Check for proper response structure
+    if (!response || !response.success) {
+      throw new Error('Failed to create ingredients: API returned unsuccessful response');
+    }
     
     return response?.results || [];
   } catch (error) {
     // More detailed error logging
     console.error('Error creating ingredients:', error.message || error);
     
-    // Log the error details in a format that won't trigger additional errors
+    // Safe error logging
     try {
-      console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      const errorDetails = {};
+      if (error) Object.getOwnPropertyNames(error).forEach(key => errorDetails[key] = error[key]);
+      console.error('Detailed error:', JSON.stringify(errorDetails));
     } catch (e) {}
     
-    throw error;
+    throw new Error(`Failed to create ingredients: ${error.message || 'Unknown error'}`);
   }
 };
 

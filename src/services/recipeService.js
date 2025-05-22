@@ -64,13 +64,18 @@ export const createRecipe = async (recipeData) => {
       }]
     };
 
-    console.log('Creating recipe with params:', JSON.stringify(params));
+    // Ensure safe logging by removing circular references
+    try {
+      const safeParams = JSON.parse(JSON.stringify(params));
+      console.log('Creating recipe with params:', safeParams);
+    } catch (e) {
+      console.log('Creating recipe (params too complex to stringify)');
+    }
     const response = await client.createRecord('recipe', params);
     
     // More thorough response validation
     if (!response || !response.success) {
-      throw new Error(`Server rejected recipe creation: ${JSON.stringify(response)}`);
-    }
+      throw new Error(`Server rejected recipe creation: ${response ? 'Unsuccessful response' : 'No response'}`);
     
     if (!response.results || !response.results[0] || !response.results[0].success || !response.results[0].data) {
       throw new Error(`Failed to create recipe: Invalid result structure: ${JSON.stringify(response.results)}`);
@@ -79,7 +84,14 @@ export const createRecipe = async (recipeData) => {
     return response.results[0].data;
   } catch (error) {
     console.error('Error creating recipe:', error.message || error);
-    throw error;
+    
+    // Safe error logging
+    try {
+      const errorDetails = {};
+      if (error) Object.getOwnPropertyNames(error).forEach(key => errorDetails[key] = error[key]);
+      console.error('Detailed error:', JSON.stringify(errorDetails));
+    } catch (e) {}
+    throw new Error(`Recipe creation failed: ${error.message || 'Unknown error'}`);
   }
 };
 

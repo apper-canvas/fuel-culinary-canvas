@@ -60,7 +60,13 @@ export const createInstructions = async (recipeId, instructionsData) => {
       }))
     };
     
-    console.log('Creating instructions with params:', JSON.stringify(params));
+    // Ensure safe logging by removing circular references
+    try {
+      const safeParams = JSON.parse(JSON.stringify(params));
+      console.log('Creating instructions with params:', safeParams);
+    } catch (e) {
+      console.log('Creating instructions (params too complex to stringify)');
+    }
     const response = await client.createRecord('instruction', params);
 
     // More thorough response validation
@@ -86,6 +92,15 @@ export const createInstructions = async (recipeId, instructionsData) => {
     return response.results;
   } catch (error) {
     console.error('Error creating instructions:', error.message || error);
+    
+    // Safe error logging
+    try {
+      const errorDetails = {};
+      if (error) Object.getOwnPropertyNames(error).forEach(key => errorDetails[key] = error[key]);
+      console.error('Detailed error:', JSON.stringify(errorDetails));
+    } catch (e) {
+      console.error('Could not stringify error details');
+    }
     throw new Error(`Failed to create instructions: ${error.message}`);
   }
 };

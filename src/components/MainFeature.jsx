@@ -172,7 +172,7 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       // Step 1: Create the recipe record
       const recipeData = {
         title: formData.title.trim(),
-        description: formData.description.trim() || '',
+        description: formData.description?.trim() || '',
         imageUrl: formData.imageUrl || '',
         prepTime: parseInt(formData.prepTime),
         cookTime: parseInt(formData.cookTime),
@@ -182,10 +182,14 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
         categories: formData.categories
       };
       
-      const recipeResponse = await createRecipe(recipeData);
+      let recipeResponse;
+      try {
+        recipeResponse = await createRecipe(recipeData);
+      } catch (error) {
+        console.error("Recipe creation failed:", error);
+        throw new Error(`Failed to create recipe: ${error.message || 'Unknown error'}`);
+      }
       
-      if (!recipeResponse || !recipeResponse.Id) {
-        throw new Error('Failed to create recipe: Invalid recipe ID returned');
       }
       
       // Use the recipe ID for child records
@@ -201,22 +205,28 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
         amount: `${ing.quantity} ${ing.unit}`.trim()
       }));
       
-      const ingredientsResponse = await createIngredients(recipeId, ingredientsData);
+      try {
+        const ingredientsResponse = await createIngredients(recipeId, ingredientsData);
 
-      // Safely check and log ingredient creation results
-      if (Array.isArray(ingredientsResponse)) {
-        console.log(`Created ${ingredientsResponse.length} ingredients for recipe ${recipeId}`);
-        // Check if any ingredients failed to create
-        const failedIngredients = ingredientsResponse.filter(result => !result.success);
-        if (failedIngredients.length > 0) {
-          console.warn(`${failedIngredients.length} ingredients failed to create`);
+        // Safely check and log ingredient creation results
+        if (Array.isArray(ingredientsResponse)) {
+          console.log(`Created ${ingredientsResponse.length} ingredients for recipe ${recipeId}`);
+          // Check if any ingredients failed to create
+          const failedIngredients = ingredientsResponse.filter(result => !result.success);
+          if (failedIngredients.length > 0) {
+            console.warn(`${failedIngredients.length} ingredients failed to create`);
+          }
         }
-      }
+      } catch (error) {
+        console.error("Ingredient creation failed:", error);
+        // Continue with instructions - don't throw here to allow partial completion
+        toast.warning("Some ingredients could not be saved");
+        }
 
       // Step 3: Create instructions linked to the recipe
       const instructionsData = formData.instructions.map((inst) => ({
         // Ensure step is a string
-        step: inst.step ? inst.step.trim() : '',
+        step: inst.step?.trim() || '',
         // Will be overridden in the next loop, but provide a default
         sequence: 0
       }));
@@ -225,16 +235,22 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       // and assign sequence numbers
       instructionsData.forEach((inst, index) => { inst.sequence = index + 1; });
       
-      const instructionsResponse = await createInstructions(recipeId, instructionsData);
+      try {
+        const instructionsResponse = await createInstructions(recipeId, instructionsData);
 
-      // Safely check and log instruction creation results
-      if (Array.isArray(instructionsResponse)) {
-        console.log(`Created ${instructionsResponse.length} instructions for recipe ${recipeId}`);
-        // Check if any instructions failed to create
-        const failedInstructions = instructionsResponse.filter(result => !result || !result.success);
-        if (failedInstructions.length > 0) {
-          console.warn(`${failedInstructions.length} instructions failed to create`);
+        // Safely check and log instruction creation results
+        if (Array.isArray(instructionsResponse)) {
+          console.log(`Created ${instructionsResponse.length} instructions for recipe ${recipeId}`);
+          // Check if any instructions failed to create
+          const failedInstructions = instructionsResponse.filter(result => !result || !result.success);
+          if (failedInstructions.length > 0) {
+            console.warn(`${failedInstructions.length} instructions failed to create`);
+          }
         }
+      } catch (error) {
+        console.error("Instruction creation failed:", error);
+        // Continue - don't throw here to allow partial completion
+        toast.warning("Some instructions could not be saved");
       }
       else {
         console.warn('Unexpected response format from createInstructions:', 
@@ -272,7 +288,7 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       
       // Extract the error message or use a generic one
       const errorMsg = error?.message || (typeof error === 'string' ? error : 'Unknown error occurred');
-      toast.error(`Failed to save recipe. Please try again.`);
+      toast.error(`Failed to save recipe: ${errorMsg}`);
     } finally {
       setIsSubmitting(false);
     }
