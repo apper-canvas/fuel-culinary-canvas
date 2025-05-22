@@ -251,32 +251,28 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
 
       toast.success("Recipe added successfully!");
     } catch (error) {
-      console.error("Error saving recipe:", error);
+      // Safely log error without triggering ApperSDK's error handling
+      const safeLog = (prefix, err) => {
+        if (typeof err === 'string') {
+          console.log(prefix, err);
+        } else if (err && typeof err === 'object') {
+          try {
+            const safeErr = { ...err };
+            delete safeErr.stack; // Remove stack to avoid SDK processing
+            console.log(prefix, JSON.stringify(safeErr));
+          } catch (e) {
+            console.log(prefix, "Error object couldn't be stringified");
+          }
+        } else {
+          console.log(prefix, "Unknown error type");
+        }
+      };
+      
+      safeLog("Error saving recipe:", error);
       
       // Extract the error message or use a generic one
-      let errorMsg = 'Unknown error occurred';
-      
-      if (error.message) {
-        errorMsg = error.message;
-      } else if (typeof error === 'string') {
-        errorMsg = error;
-      } else if (error.toString && error.toString() !== '[object Object]') {
-        errorMsg = error.toString();
-      }
-      
-      // Check for specific error conditions based on the error message
-      if (errorMsg.includes('Invalid response') || errorMsg.includes('Invalid result structure')) {
-        toast.error(`Server returned an unexpected response. Please try again.`);
-      }
-      else if (errorMsg.includes('Recipe ID is required')) {
-        toast.error(`Internal error: Recipe ID missing for related items. Please try again.`);
-      }
-      else if (errorMsg.includes('Server rejected')) {
-        toast.error(`The server rejected your request. Please check your recipe details.`);
-      }
-      else {
-        toast.error(`Failed to save recipe: ${errorMsg}. Please try again.`);
-      }
+      const errorMsg = error?.message || (typeof error === 'string' ? error : 'Unknown error occurred');
+      toast.error(`Failed to save recipe. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }
