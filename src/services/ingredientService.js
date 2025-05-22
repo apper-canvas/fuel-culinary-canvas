@@ -53,8 +53,8 @@ export const fetchIngredientsByRecipeId = async (recipeId) => {
       fields: ['Id', 'Name', 'amount', 'recipe'],
       where: [
         {
-          FieldName: 'recipe',
-          Operator: 'ExactMatch',
+          fieldName: 'recipe',
+          operator: 'ExactMatch',
           Values: [recipeId.toString()]
         }
       ]

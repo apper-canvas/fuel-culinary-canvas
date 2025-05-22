@@ -16,8 +16,8 @@ export const fetchInstructionsByRecipeId = async (recipeId) => {
       fields: ['Id', 'Name', 'step', 'sequence', 'recipe'],
       where: [
         {
-          FieldName: 'recipe',
-          Operator: 'ExactMatch',
+          fieldName: 'recipe',
+          operator: 'ExactMatch',
           Values: [recipeId.toString()]
         }
       ],
