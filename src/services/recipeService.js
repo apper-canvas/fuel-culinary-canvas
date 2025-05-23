@@ -77,6 +77,7 @@ export const createRecipe = async (recipeData) => {
     if (!response || !response.success) {
       throw new Error(`Server rejected recipe creation: ${response ? 'Unsuccessful response' : 'No response'}`);
     
+    }
     if (!response.results || !response.results[0] || !response.results[0].success || !response.results[0].data) {
       throw new Error(`Failed to create recipe: Invalid result structure: ${JSON.stringify(response.results)}`);
     }
