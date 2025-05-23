@@ -233,6 +233,8 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       // Sort instructionsData by their index in the array
       // and assign sequence numbers
       instructionsData.forEach((inst, index) => { inst.sequence = index + 1; });
+
+      let instructionsResponse;
       
       try {
         const instructionsResponse = await createInstructions(recipeId, instructionsData);
@@ -245,17 +247,19 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
           if (failedInstructions.length > 0) {
             console.warn(`${failedInstructions.length} instructions failed to create`);
           }
+        } else {
+          console.warn('Unexpected response format from createInstructions:', 
+          typeof instructionsResponse, instructionsResponse);
         }
       } catch (error) {
         console.error("Instruction creation failed:", error);
         // Continue - don't throw here to allow partial completion
         toast.warning("Some instructions could not be saved");
+        // Initialize to prevent undefined variable errors
+        instructionsResponse = null;
       }
       
-      if (!Array.isArray(instructionsResponse)) {
-        console.warn('Unexpected response format from createInstructions:', 
-        typeof instructionsResponse, instructionsResponse);
-      }
+      // Move the check inside the try block above
       
       // Notify parent component with new recipe if callback exists
       if (onAddRecipe) {
@@ -287,7 +291,7 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
       safeLog("Error saving recipe:", error);
       
       // Extract the error message or use a generic one
-      const errorMsg = error?.message || (typeof error === 'string' ? error : 'Unknown error occurred');
+      const errorMsg = error?.message || (typeof error === 'string' ? error : 'Unknown error occurred. Please try again.');
       toast.error(`Failed to save recipe: ${errorMsg}`);
     } finally {
       setIsSubmitting(false);
