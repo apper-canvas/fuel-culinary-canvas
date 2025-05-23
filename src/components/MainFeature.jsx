@@ -190,7 +190,6 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
         throw new Error(`Failed to create recipe: ${error.message || 'Unknown error'}`);
       }
       
-      }
       
       // Use the recipe ID for child records
       const recipeId = recipeResponse.Id;
@@ -252,9 +251,10 @@ const MainFeature = forwardRef(function MainFeature({ onAddRecipe }, ref) {
         // Continue - don't throw here to allow partial completion
         toast.warning("Some instructions could not be saved");
       }
-      else {
+      
+      if (!Array.isArray(instructionsResponse)) {
         console.warn('Unexpected response format from createInstructions:', 
-          typeof instructionsResponse, instructionsResponse);
+        typeof instructionsResponse, instructionsResponse);
       }
       
       // Notify parent component with new recipe if callback exists
